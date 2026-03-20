@@ -895,8 +895,7 @@ Median March handle time: <strong>{fmt_duration_human(int(round(k_mar["median_du
 <h2 style="margin-top:0;border:none;">Bottom line</h2>
 <p>You probably don’t need <em>more</em> raw calls as much as <em>cleaner receipt</em>: answer discipline, tagging, and triage. 
 Most of the waste here is preventable — calls that never get scored, or fail before a real conversation. Fixing that usually beats another point of bid.</p>
-<p style="margin-bottom:0.75rem;"><strong>Data caveats:</strong> {html.escape(disclaimer)}</p>
-<p style="margin-bottom:0;font-size:0.95rem;">February file starts Feb 2. Pacific time used for heatmap. Internal test calls pulled out of main totals in the spreadsheet.</p>
+<p style="margin-bottom:0;font-size:0.95rem;"><strong>Data caveats:</strong> See the yellow disclaimer box at the top (AI-assisted, imperfect tags, partial months). February export starts Feb 2; Pacific time on heatmap; internal tests removed from main KPI rows.</p>
 </div>
 
 <footer class="note">
