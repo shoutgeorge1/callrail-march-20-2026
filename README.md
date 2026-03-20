@@ -26,6 +26,16 @@ Update the Excel path inside `scripts/build_intake_report.py` if needed. Then co
 
 Commit and push to update the live site.
 
+## February vs March month-over-month report
+
+Paths are set inside `scripts/build_mom_report.py` (February export + March-through-20 export). Regenerate:
+
+```bash
+python scripts/build_mom_report.py
+```
+
+This overwrites **`index.html`** at the repo root and writes `report_output/MOM_REPORT_FEB_MAR_2026.html`.
+
 ### One-command preview (no GitHub)
 
 From repo root:
