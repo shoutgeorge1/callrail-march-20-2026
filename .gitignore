@@ -1,0 +1,17 @@
+# Raw data / PII — do not publish
+report_output/calls_classified.csv
+report_output/charts/
+*.xlsx
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vercel

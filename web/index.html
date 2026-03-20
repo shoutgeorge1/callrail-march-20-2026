@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Intake Performance Report</title>
+  <style>
+    :root { --ink: #1a1d21; --muted: #5c6370; --line: #e3e5e8; --accent: #1a5f4a; --bg: #fafbfc; }
+    * { box-sizing: border-box; }
+    body { font-family: Georgia, "Times New Roman", serif; color: var(--ink); background: var(--bg); line-height: 1.55; max-width: 880px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h1 { font-size: 1.75rem; font-weight: 700; border-bottom: 3px solid var(--accent); padding-bottom: 0.5rem; margin-top: 0; }
+    h2 { font-size: 1.25rem; margin-top: 2rem; color: var(--accent); }
+    h3 { font-size: 1.05rem; margin-top: 1.25rem; }
+    p.meta { color: var(--muted); font-size: 0.95rem; margin: 0.5rem 0 0; }
+    hr { border: none; border-top: 1px solid var(--line); margin: 2rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 1rem 0; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    th, td { border: 1px solid var(--line); padding: 0.5rem 0.65rem; text-align: left; }
+    th { background: #f0f2f4; font-weight: 600; }
+    tr:nth-child(even) td { background: #fafafa; }
+    ul { margin: 0.75rem 0; padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .figure { margin: 1.25rem 0; text-align: center; }
+    .figure img { max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: 4px; background: #fff; }
+    .figure p { font-size: 0.85rem; color: var(--muted); margin: 0.5rem 0 0; }
+    .note { font-size: 0.85rem; color: var(--muted); font-style: italic; margin-top: 2rem; }
+    strong { font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <h1>Executive &amp; Tactical Intake Performance Report</h1>
+  <p class="meta"><strong>Prepared for:</strong> Personal Injury — High-Spend Acquisition Program</p>
+  <p class="meta"><strong>Dataset:</strong> Call Rail export — Call List-2026-03-20 (1).xlsx</p>
+  <p class="meta"><strong>Scope:</strong> 543 calls · Automated classification (spot-check recommended)</p>
+
+  <hr />
+
+  <h2>Snapshot KPIs</h2>
+  <table>
+    <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Total calls</td><td>543</td></tr>
+      <tr><td>Answered calls</td><td>521</td></tr>
+      <tr><td>Abandoned calls</td><td>22</td></tr>
+      <tr><td>Abandon rate (of total)</td><td>4.05%</td></tr>
+      <tr><td>Median duration (sec)</td><td>157.0</td></tr>
+      <tr><td>Mean duration (sec)</td><td>312.7</td></tr>
+      <tr><td>True PI (modeled) %</td><td>15.84%</td></tr>
+      <tr><td>Existing client load %</td><td>10.68%</td></tr>
+      <tr><td>Estimated marketing noise %</td><td>47.51%</td></tr>
+      <tr><td>Intake failure / friction %</td><td>11.97%</td></tr>
+      <tr><td>Untagged / ambiguous %</td><td>14.0%</td></tr>
+      <tr><td>Top volume windows (local time)</td><td>13:00–14:00 (62), 11:00–12:00 (62), 12:00–13:00 (59)</td></tr>
+      <tr><td>CallRail Qualified Lead (raw)</td><td>65</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Definitions:</strong></p>
+  <ul>
+    <li><strong>True Potential PI Leads</strong> — modeled from CallRail Qualified, tags (MVA, premises, high-intent), attorney-switch intent; excludes obvious wrong-firm/vendor/non-PI.</li>
+    <li><strong>Estimated marketing noise %</strong> — vendor/sales + wrong firm/misdial + PD/non-case (non-actionable acquisition demand).</li>
+    <li><strong>Intake failure signals</strong> — abandoned + dead air/hang-up/silent patterns + ultra-short connects.</li>
+  </ul>
+
+  <hr />
+
+  <h2>Strategic bucket mix</h2>
+  <table>
+    <thead><tr><th>Strategic bucket</th><th>Calls</th><th>% of total</th></tr></thead>
+    <tbody>
+      <tr><td>True Potential PI Leads</td><td>86</td><td>15.84%</td></tr>
+      <tr><td>Existing Client Traffic</td><td>58</td><td>10.68%</td></tr>
+      <tr><td>Vendor / Sales / Non-Lead</td><td>93</td><td>17.13%</td></tr>
+      <tr><td>Wrong Firm / Misdial / Brand Confusion</td><td>99</td><td>18.23%</td></tr>
+      <tr><td>Intake Failure Signals</td><td>65</td><td>11.97%</td></tr>
+      <tr><td>Property Damage / Non-Case</td><td>66</td><td>12.15%</td></tr>
+      <tr><td>Untagged / Ambiguous</td><td>76</td><td>14.00%</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Charts</h3>
+  <div class="figure"><p><strong>Funnel</strong></p><img src="charts/funnel.png" alt="Funnel" /></div>
+  <div class="figure"><p><strong>Intent distribution</strong></p><img src="charts/pie_distribution.png" alt="Pie" /></div>
+  <div class="figure"><p><strong>Duration distribution</strong></p><img src="charts/duration_histogram.png" alt="Histogram" /></div>
+  <div class="figure"><p><strong>Hour × weekday</strong></p><img src="charts/heatmap_hour_weekday.png" alt="Heatmap weekday" /></div>
+  <div class="figure"><p><strong>Calls by hour</strong></p><img src="charts/heatmap_hour.png" alt="Heatmap hour" /></div>
+  <div class="figure"><p><strong>Source × bucket (stacked)</strong></p><img src="charts/stacked_by_source.png" alt="Stacked" /></div>
+
+  <hr />
+
+  <h2>Source-level quality</h2>
+  <p>Higher <strong>True PI %</strong> and lower <strong>Noise+PD %</strong> = stronger targeting. Use <strong>Intake Fail %</strong> to separate media vs answer problems.</p>
+  <table>
+    <thead><tr><th>Source</th><th>Calls</th><th>True PI %</th><th>Noise+PD %</th><th>Intake Fail %</th></tr></thead>
+    <tbody>
+      <tr><td>Google Ads</td><td>231</td><td>21.6</td><td>44.6</td><td>15.6</td></tr>
+      <tr><td>Direct</td><td>107</td><td>13.1</td><td>59.8</td><td>5.6</td></tr>
+      <tr><td>GMB (+ Multi Use Tracking Number)</td><td>56</td><td>21.4</td><td>44.6</td><td>10.7</td></tr>
+      <tr><td>AA Website &amp; Blog</td><td>29</td><td>0.0</td><td>44.8</td><td>10.3</td></tr>
+      <tr><td>Google My Business</td><td>26</td><td>3.8</td><td>61.5</td><td>7.7</td></tr>
+      <tr><td>Website</td><td>20</td><td>0.0</td><td>40.0</td><td>10.0</td></tr>
+      <tr><td>Yelp</td><td>14</td><td>21.4</td><td>50.0</td><td>0.0</td></tr>
+      <tr><td>Facebook</td><td>12</td><td>0.0</td><td>25.0</td><td>41.7</td></tr>
+      <tr><td>Legacy Phone Number</td><td>10</td><td>0.0</td><td>60.0</td><td>10.0</td></tr>
+      <tr><td>APEX CHAT</td><td>9</td><td>0.0</td><td>0.0</td><td>0.0</td></tr>
+      <tr><td>Google Organic</td><td>8</td><td>25.0</td><td>50.0</td><td>12.5</td></tr>
+      <tr><td>Landing: 844-Inside-5</td><td>7</td><td>42.9</td><td>14.3</td><td>14.3</td></tr>
+      <tr><td>Brand / Organic – Static (844-467-4335)</td><td>3</td><td>0.0</td><td>100.0</td><td>0.0</td></tr>
+      <tr><td>www.insideraccidentlawyers.com</td><td>2</td><td>0.0</td><td>0.0</td><td>100.0</td></tr>
+      <tr><td>Apex (after-hour transfers to Carlos)</td><td>2</td><td>0.0</td><td>0.0</td><td>0.0</td></tr>
+      <tr><td>Super Lawyers - Los Angeles</td><td>2</td><td>50.0</td><td>50.0</td><td>0.0</td></tr>
+      <tr><td>Bing Organic</td><td>2</td><td>0.0</td><td>100.0</td><td>0.0</td></tr>
+      <tr><td>Instagram</td><td>1</td><td>0.0</td><td>100.0</td><td>0.0</td></tr>
+    </tbody>
+  </table>
+
+  <hr />
+
+  <h2>Marketing signal quality</h2>
+  <ul>
+    <li>Only <strong>~15.84%</strong> of volume is modeled <strong>true PI opportunity</strong>; the rest is operations, noise, or failure.</li>
+    <li><strong>Noise+PD ~47.51%</strong> — main lever on effective CAC if those calls are paid.</li>
+    <li><strong>~14%</strong> untagged/ambiguous — breaks attribution; CAC math looks better than reality.</li>
+  </ul>
+
+  <h2>Intake conversion risk</h2>
+  <ul>
+    <li><strong>~11.97%</strong> intake failure signals — staffing, IVR, speed-to-answer.</li>
+    <li>Silent/dead air/hang-up tags point to <strong>agent-side</strong> issues too.</li>
+    <li>Reconcile CallRail <strong>Qualified Lead</strong> vs modeled <strong>True PI</strong> weekly.</li>
+  </ul>
+
+  <h2>Brand positioning leakage</h2>
+  <ul>
+    <li>Wrong firm / competitor / misdial = brand + geo-targeting tax.</li>
+    <li>Segment by number pool and campaign — don’t blend brand with performance.</li>
+  </ul>
+
+  <h2>Operational bottlenecks</h2>
+  <ul>
+    <li><strong>~10.68%</strong> existing-client load on acquisition lines — consider dedicated client-care queue.</li>
+    <li>Vendor/medical — route, don’t sell; they eat handle time.</li>
+    <li><strong>Peak windows:</strong> 11–12, 12–1, 1–2 local — staff and overflow here first.</li>
+  </ul>
+
+  <h2>Immediate revenue actions</h2>
+  <ul>
+    <li>Cut CAC: negatives + query sculpting for non-case and wrong-firm traffic.</li>
+    <li>Lift volume: reduce abandonment in peak hours (schedule + overflow).</li>
+    <li>Force disposition + tag on every call — eliminate blind Not Scored.</li>
+  </ul>
+
+  <hr />
+
+  <h2>Final executive summary</h2>
+  <p>This line is <strong>not a marketing funnel</strong> — it is a <strong>demand blender</strong>. Out of <strong>543</strong> calls, <strong>15.84%</strong> present as true PI opportunity under a conservative model. Roughly <strong>47.51%</strong> is non-actionable acquisition noise (vendor, wrong firm, PD/non-case), before <strong>existing client</strong> load (<strong>10.68%</strong>) and <strong>intake failure</strong> (<strong>11.97%</strong>). If you buy clicks against general legal intent and brand confusion, you <strong>tax CAC</strong> with calls that won’t become cases. <strong>Mandate:</strong> separate acquisition from client service and vendor traffic, staff peak hours, close the loop on Not Scored. Growth is <strong>quality + speed</strong>, not only more spend.</p>
+
+  <hr />
+
+  <h2>Action playbook</h2>
+  <h3>Intake script</h3>
+  <ul>
+    <li>3-second opener: firm + PI + geography; branch existing clients to client-care.</li>
+    <li>Mandatory capture: name, date, injuries, EMS, fault, insurance — before story.</li>
+    <li>Hang-up save: one closing question after silent/dead air.</li>
+  </ul>
+  <h3>Routing</h3>
+  <ul>
+    <li>VIP: Spanish + injury vs PD-only; vendor → admin or auto-attendant.</li>
+    <li>After-hours aligned to peaks; overflow for top sources.</li>
+  </ul>
+  <h3>Marketing</h3>
+  <ul>
+    <li>Negatives: employment, tax, family, criminal, competitor names in search terms.</li>
+    <li>Campaign negatives for wrong-firm/misdial clusters; tighten geo where misdials cluster.</li>
+  </ul>
+  <h3>Brand</h3>
+  <ul>
+    <li>Distinct numbers: brand vs performance; clear verbal ID in ads.</li>
+    <li>LSA/Maps: firm name + injury, not generic “lawyers.”</li>
+  </ul>
+  <h3>Tracking</h3>
+  <ul>
+    <li>100% disposition — no chronic Not Scored.</li>
+    <li>UTM + GCLID; CallRail aligned to Google Ads structure.</li>
+    <li>Weekly: Qualified Lead vs CRM signed.</li>
+  </ul>
+
+  <p class="note">Classification: rule-based priority stack — spot-check UNTAGGED_OR_AMBIGUOUS rows.</p>
+
+</body>
+</html>
