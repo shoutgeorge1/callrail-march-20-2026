@@ -557,35 +557,6 @@ def main():
     fig.savefig(CHARTS / "mom_duration_buckets.png", bbox_inches="tight")
     plt.close()
 
-    # 3b) Scoring / disposition coverage
-    def qual_segments(series: pd.Series) -> dict:
-        q = series.str.lower()
-        return {
-            "qualified_lead": int((q == "qualified lead").sum()),
-            "not_a_lead": int((q == "not a lead").sum()),
-            "not_scored": int((q == "not scored").sum()),
-            "other": int(((q != "qualified lead") & (q != "not a lead") & (q != "not scored")).sum()),
-        }
-
-    sf = qual_segments(feb_core["Qualified"])
-    sm = qual_segments(mar_core["Qualified"])
-    fig, ax = plt.subplots(figsize=(13, 6.8))
-    cats = ["Marked qualified\n(value-back)", "Not a lead", "Not scored\n(CallRail field)"]
-    fv = [sf["qualified_lead"], sf["not_a_lead"], sf["not_scored"]]
-    mv = [sm["qualified_lead"], sm["not_a_lead"], sm["not_scored"]]
-    xs = np.arange(len(cats))
-    ax.bar(xs - w / 2, fv, width=w, label="February (full month)", color="#2563eb", edgecolor="white", linewidth=0.8)
-    ax.bar(xs + w / 2, mv, width=w, label="March through 3/20", color="#f97316", edgecolor="white", linewidth=0.8)
-    ax.set_xticks(xs)
-    ax.set_xticklabels(cats, fontsize=11)
-    ax.set_ylabel("Calls", fontsize=14)
-    ax.set_title("CallRail dispositions — qualified / not a lead / unmarked", fontweight="bold", fontsize=16)
-    ax.tick_params(axis="y", labelsize=13)
-    ax.legend(fontsize=13)
-    plt.tight_layout()
-    fig.savefig(CHARTS / "mom_scoring_coverage.png", bbox_inches="tight")
-    plt.close()
-
     # 4) Heatmap March — hour labels AM/PM
     mar_local = add_local_time(mar_raw[~mar_raw["internal_test"]])
     heat = mar_local.pivot_table(index="weekday", columns="hour_pt", values="Call Status", aggfunc="count", fill_value=0)
@@ -881,10 +852,6 @@ footer.note {{ font-size: 0.85rem; color: var(--muted); margin-top: 2rem; }}
 {what_changed_table}
 <p class="takeaway-line"><strong>Reading the table:</strong> Volume and source mix describe demand; value-back share describes how much traffic carries a Google value signal; modeled rows summarize tag language for trend spotting.</p>
 
-<h2>CallRail disposition fields</h2>
-<p class="takeaway-line">Count of calls in each disposition bucket. The default “unmarked” state is expected when value-back marking is selective.</p>
-<div class="figure"><img src="charts/mom_scoring_coverage.png" alt="CallRail fields"/><p>February = full export; March = through Mar 20 (shorter window).</p></div>
-
 <h2>Source mix</h2>
 <p class="takeaway-line">Where the phones rang. Compare shape, not just height — one source can add volume without adding cases.</p>
 <div class="figure"><img src="charts/mom_source_comparison.png" alt="Source comparison"/></div>
@@ -923,20 +890,16 @@ Median March handle time: <strong>{fmt_duration_human(int(round(k_mar["median_du
 <li>Complex or non-standard inquiries may benefit from consistent triage scripts as part of normal scaling.</li>
 </ul>
 
-<h2>Recommendations — general practices (PI scaling)</h2>
-<p class="takeaway-line">These are common practices for growing personal injury firms; they should be adapted to the firm’s operating model and resources.</p>
-<h3>Intake &amp; disposition</h3>
+<h2>Practical notes</h2>
+<p class="takeaway-line">These are optional ideas — not a checklist. They’re the kind of things many PI firms look at as volume grows; use what fits.</p>
 <ul class="tight">
-<li>Keep a clear rule for when a call receives a value-back mark versus remaining in the default disposition.</li>
-<li>Use a short, consistent opening (firm name, practice focus, geography) before routing callers.</li>
-<li>Document triage paths for common non-case or referral scenarios so the process scales with volume.</li>
+<li><strong>Value-back marking:</strong> Keeping a simple, consistent idea of which calls get a Google value-back mark tends to make month-to-month reporting easier to read.</li>
+<li><strong>First few seconds:</strong> A short, steady opening (who the firm is, what they handle, where) usually helps callers get oriented.</li>
+<li><strong>Busy hours:</strong> The heatmap is a rough guide — if staffing lines up with the peaks, fewer calls hit voicemail or hold.</li>
+<li><strong>Vendor / admin traffic:</strong> When that volume is noticeable, a separate path or number for it can keep case lines open for injury calls.</li>
+<li><strong>Paid search:</strong> Glancing at search terms and negatives every so often is often enough to catch drift before spend does.</li>
+<li><strong>Sanity checks:</strong> Occasionally comparing marked-qualified counts to what actually signed in the firm can help calibrate — no pressure to do it every week.</li>
 </ul>
-<h3>Operations &amp; routing</h3>
-<ul class="tight"><li>Align coverage with peak hours from the heatmap; add overflow or backup coverage when volume grows.</li><li>Separate vendor, medical, or administrative lines where volume warrants it.</li></ul>
-<h3>Marketing &amp; PPC</h3>
-<ul class="tight"><li>Review search terms and LSA queries on a cadence that matches spend; refresh negative keywords as new patterns appear.</li><li>Compare source mix month to month before changing bids — quality shifts often show up in source mix first.</li></ul>
-<h3>Reporting &amp; QA</h3>
-<ul class="tight"><li>Periodically align CallRail marked-qualified counts with firm intake or CRM outcomes for calibration.</li><li>Sample recorded calls when tag categories shift materially.</li></ul>
 
 <div class="takeaway">
 <h2 style="margin-top:0;border:none;">Summary</h2>
