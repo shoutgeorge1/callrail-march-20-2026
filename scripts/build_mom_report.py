@@ -560,17 +560,17 @@ def main():
 
     sf = qual_segments(feb_core["Qualified"])
     sm = qual_segments(mar_core["Qualified"])
-    fig, ax = plt.subplots(figsize=(12, 6.5))
-    cats = ["Qualified Lead", "Not a Lead", "Not Scored"]
+    fig, ax = plt.subplots(figsize=(13, 6.8))
+    cats = ["Marked qualified\n(value-back)", "Not a lead", "Not scored\n(CallRail field)"]
     fv = [sf["qualified_lead"], sf["not_a_lead"], sf["not_scored"]]
     mv = [sm["qualified_lead"], sm["not_a_lead"], sm["not_scored"]]
     xs = np.arange(len(cats))
     ax.bar(xs - w / 2, fv, width=w, label="February (full month)", color="#2563eb", edgecolor="white", linewidth=0.8)
     ax.bar(xs + w / 2, mv, width=w, label="March through 3/20", color="#f97316", edgecolor="white", linewidth=0.8)
     ax.set_xticks(xs)
-    ax.set_xticklabels(cats, fontsize=14)
+    ax.set_xticklabels(cats, fontsize=11)
     ax.set_ylabel("Calls", fontsize=14)
-    ax.set_title("CallRail disposition coverage", fontweight="bold", fontsize=16)
+    ax.set_title("CallRail fields — qualified / not a lead / not scored", fontweight="bold", fontsize=16)
     ax.tick_params(axis="y", labelsize=13)
     ax.legend(fontsize=13)
     plt.tight_layout()
@@ -684,17 +684,25 @@ def main():
     unc_f = int(feb_b.get("UNCLEAR_UNTAGGED", 0))
     unc_m = int(mar_b.get("UNCLEAR_UNTAGGED", 0))
 
-    disclaimer = (
-        "This report was drafted with assistance from Cursor AI. Numbers, tags, and buckets can be wrong — "
-        "spot-check anything you stake decisions on. February had lighter/messier labeling in places, so month-to-month "
-        "comparisons are directional. March is not a full month yet; projections are pace-based and rough."
+    disclaimer_p1 = (
+        "This report was drafted with assistance from Cursor AI. Numbers, charts, and modeled buckets may contain mistakes — "
+        "verify anything you rely on for decisions. February had lighter labeling in places; March is incomplete; "
+        "projections are pace-based and rough."
+    )
+    disclaimer_p2 = (
+        "Tags and “qualified” markings in CallRail reflect contextual judgment from listening to calls — they are not a full "
+        "intake QA scorecard and may not match what a formal intake team would classify as a true lead."
+    )
+    disclaimer_p3 = (
+        "“Qualified lead” here means calls you chose to mark for Google value-back (your workflow), not an independent measure of lead quality. "
+        "The CallRail “Not scored” field is just that — a field state — not evidence of a failed scoring program."
     )
 
     # "What changed" — short bullets (no long paragraphs)
     bullets_what_changed = f"""
 <li><strong>Call volume:</strong> About <strong>{k_mar['n']:,}</strong> calls in the first 20 days of March vs <strong>{k_feb['n']:,}</strong> across February’s export — daily pace is higher in March.</li>
-<li><strong>Qualified rate:</strong> CallRail “Qualified Lead” rate went from <strong>{k_feb['ql_rate']:.1f}%</strong> to <strong>{k_mar['ql_rate']:.1f}%</strong>.</li>
-<li><strong>Not scored:</strong> <strong>{k_mar['not_scored']:,}</strong> March vs <strong>{k_feb['not_scored']:,}</strong> February — big blind spot if it stays high.</li>
+<li><strong>Marked qualified (value-back to Google):</strong> Share of calls marked “Qualified Lead” went from <strong>{k_feb['ql_rate']:.1f}%</strong> to <strong>{k_mar['ql_rate']:.1f}%</strong> — that’s your judgment for value-back, not an objective score.</li>
+<li><strong>CallRail “Not scored” field:</strong> <strong>{k_mar['not_scored']:,}</strong> March vs <strong>{k_feb['not_scored']:,}</strong> February — mostly calls you haven’t marked for Google value-back; neutral context, not a “bad intake” KPI.</li>
 <li><strong>Google/Meta vs Direct/GMB:</strong> PPC-heavy (Google Ads + Meta) <strong>{ppc_f}</strong> → <strong>{ppc_m}</strong>; Direct + GMB <strong>{br_f}</strong> → <strong>{br_m}</strong>.</li>
 <li><strong>Modeled buckets (rough):</strong> Silent/dead-air style <strong>{silent_f}</strong> → <strong>{silent_m}</strong>; wrong-firm/admin/existing <strong>{wf_f}</strong> → <strong>{wf_m}</strong>; non-PI wrong practice <strong>{npi_f}</strong> → <strong>{npi_m}</strong>; attorney-switch signals <strong>{as_f}</strong> → <strong>{as_m}</strong>; symptom confusion <strong>{med_f}</strong> → <strong>{med_m}</strong>; unclear/untagged <strong>{unc_f}</strong> → <strong>{unc_m}</strong>.</li>
 """
@@ -739,6 +747,9 @@ h1 {{ font-size: 1.85rem; margin: 0 0 0.5rem; font-weight: 700; }}
   font-size: 0.95rem;
   color: #44403c;
 }}
+.disclaimer p {{ margin: 0.35rem 0; }}
+.disclaimer p:first-child {{ margin-top: 0; }}
+.disclaimer p:last-child {{ margin-bottom: 0; }}
 .change-list {{ margin: 0.5rem 0 0; padding-left: 1.2rem; }}
 .change-list li {{ margin: 0.5rem 0; line-height: 1.5; }}
 .takeaway-line {{ font-size: 0.95rem; color: var(--muted); margin: 0.4rem 0 1rem; max-width: 48rem; }}
@@ -797,14 +808,17 @@ footer.note {{ font-size: 0.85rem; color: var(--muted); margin-top: 2rem; }}
 </header>
 
 <div class="disclaimer">
-  {html.escape(disclaimer)}
+  <p>{html.escape(disclaimer_p1)}</p>
+  <p>{html.escape(disclaimer_p2)}</p>
+  <p>{html.escape(disclaimer_p3)}</p>
 </div>
 
 <h2>Definitions (plain English)</h2>
 <div class="def">
-<p><strong>Qualified lead rate</strong> — What CallRail shows as “Qualified Lead” vs everything else.</p>
-<p><strong>True PI (modeled)</strong> — Our best read from tags + status for injury-type opportunity. Not the same as CallRail’s button.</p>
-<p><strong>Intake failure / dead-air bucket</strong> — Hang-ups, abandoned calls, “silent” or dead-air tags, or super-short connects with no real intake. These are usually <em>handling or connect</em> issues, not “bad marketing” by themselves.</p>
+<p><strong>Qualified / value-back</strong> — Calls you marked “Qualified Lead” because you intend to send value back to Google. That’s your call — not an independent quality score.</p>
+<p><strong>True PI (modeled)</strong> — A rough machine read from tags + status for injury-shaped opportunity. It’s a label for charts, not a substitute for your ear on the line.</p>
+<p><strong>Not scored (CallRail field)</strong> — The default bucket when you haven’t applied that value-back marking. It isn’t a failed “scoring program.”</p>
+<p><strong>Intake failure / dead-air bucket</strong> — Hang-ups, abandoned calls, silent/dead-air tags, or very short connects. Usually connect or handling, not “bad ads” by itself.</p>
 </div>
 
 <h2>Snapshot KPIs</h2>
@@ -818,9 +832,9 @@ footer.note {{ font-size: 0.85rem; color: var(--muted); margin-top: 2rem; }}
 <tr><td>Average duration</td><td>{fmt_duration_human(int(round(k_feb["avg_dur"])))}</td><td>{fmt_duration_human(int(round(k_mar["avg_dur"])))}</td><td>—</td><td>—</td></tr>
 <tr><td>Median duration</td><td>{fmt_duration_human(int(round(k_feb["median_dur"])))}</td><td>{fmt_duration_human(int(round(k_mar["median_dur"])))}</td><td>—</td><td>—</td></tr>
 <tr><td>Calls with tags</td><td>{k_feb["tagged"]:,}</td><td>{k_mar["tagged"]:,}</td><td>{int(round(k_mar_proj["tagged"])):,}</td><td>—</td></tr>
-<tr><td>Qualified leads (CallRail)</td><td>{k_feb["qualified_leads"]:,}</td><td>{k_mar["qualified_leads"]:,}</td><td>{int(round(k_mar_proj["qualified_leads"])):,}</td><td>—</td></tr>
-<tr><td>Not scored</td><td>{k_feb["not_scored"]:,}</td><td>{k_mar["not_scored"]:,}</td><td>{int(round(k_mar_proj["not_scored"])):,}</td><td>{pct_change(k_mar["not_scored"], k_feb["not_scored"])} (actual)</td></tr>
-<tr><td>Qualified lead rate</td><td>{k_feb["ql_rate"]:.1f}%</td><td>{k_mar["ql_rate"]:.1f}%</td><td>{k_mar["ql_rate"]:.1f}%</td><td>{pct_change(k_mar["ql_rate"], k_feb["ql_rate"])}</td></tr>
+<tr><td>Marked qualified (Google value-back)</td><td>{k_feb["qualified_leads"]:,}</td><td>{k_mar["qualified_leads"]:,}</td><td>{int(round(k_mar_proj["qualified_leads"])):,}</td><td>—</td></tr>
+<tr><td>CallRail “Not scored” (field, not a failure metric)</td><td>{k_feb["not_scored"]:,}</td><td>{k_mar["not_scored"]:,}</td><td>{int(round(k_mar_proj["not_scored"])):,}</td><td>{pct_change(k_mar["not_scored"], k_feb["not_scored"])} (actual)</td></tr>
+<tr><td>Share marked qualified (value-back)</td><td>{k_feb["ql_rate"]:.1f}%</td><td>{k_mar["ql_rate"]:.1f}%</td><td>{k_mar["ql_rate"]:.1f}%</td><td>{pct_change(k_mar["ql_rate"], k_feb["ql_rate"])}</td></tr>
 <tr><td>True PI (modeled count)</td><td>{k_feb["true_pi_est"]:,}</td><td>{k_mar["true_pi_est"]:,}</td><td>{k_mar_proj["true_pi_est"]:,}</td><td>{pct_change(k_mar["true_pi_est"], k_feb["true_pi_est"])}</td></tr>
 <tr><td>Internal tests (raw)</td><td>{int(feb_int)}</td><td>{int(mar_int)}</td><td>—</td><td>—</td></tr>
 </tbody>
@@ -831,11 +845,11 @@ footer.note {{ font-size: 0.85rem; color: var(--muted); margin-top: 2rem; }}
 <ul class="change-list">
 {bullets_what_changed}
 </ul>
-<p class="takeaway-line"><strong>Plain read:</strong> If rings go up but “Not Scored” stays huge, you’re busy — not necessarily winning.</p>
+<p class="takeaway-line"><strong>Plain read:</strong> Volume is up; value-back share and modeled buckets are the follow-on questions — not “not scored” as a guilt metric.</p>
 
-<h2>Scoring coverage (CallRail)</h2>
-<p class="takeaway-line">Shows how often the team closed the loop in CallRail. Big “Not Scored” = you can’t trust source ROI.</p>
-<div class="figure"><img src="charts/mom_scoring_coverage.png" alt="Scoring coverage"/><p>February = full export; March = through Mar 20 (fewer days, so totals aren’t apples-to-apples).</p></div>
+<h2>CallRail fields — qualified vs not scored</h2>
+<p class="takeaway-line">This is how often calls sit in each CallRail disposition field. “Not scored” usually means you haven’t marked value-back yet — not that intake failed.</p>
+<div class="figure"><img src="charts/mom_scoring_coverage.png" alt="CallRail fields"/><p>February = full export; March = through Mar 20 (shorter window).</p></div>
 
 <h2>Source mix</h2>
 <p class="takeaway-line">Where the phones rang. Compare shape, not just height — one source can add volume without adding cases.</p>
@@ -866,8 +880,8 @@ Median March handle time: <strong>{fmt_duration_human(int(round(k_mar["median_du
 <ul class="tight">
 <li><strong>Projected March calls (excl. tests):</strong> ~{k_mar_proj["n"]:,} if the first 20 days represent the whole month.</li>
 <li><strong>Caveat:</strong> Pace can <em>overstate</em> if the last third of March is slower (weekends, budget caps) or <em>understate</em> if you run heavy weekend LSA/PPC.</li>
-<li><strong>If nothing changes:</strong> higher volume with weak tagging = marketing looks “fine” while intake quality stays invisible.</li>
-<li><strong>Fast win:</strong> cut dead-air + force disposition on “Not Scored” — that alone tightens forecasting.</li>
+<li><strong>If nothing changes:</strong> you may still see volume grow while only part of the story is visible in tags.</li>
+<li><strong>Operational angle:</strong> fewer dead-air connects usually helps conversion without changing ad spend.</li>
 </ul>
 
 <h2>Operational notes</h2>
@@ -879,23 +893,24 @@ Median March handle time: <strong>{fmt_duration_human(int(round(k_mar["median_du
 <h2>Recommended actions</h2>
 <h3>Intake (priority)</h3>
 <ul class="tight">
-<li><strong>End every call with a disposition</strong> — “Not Scored” should be rare, not normal.</li>
+<li><strong>Value-back marking:</strong> keep using “qualified” the way you already do for Google — this report doesn’t treat “not scored” as a problem on its own.</li>
 <li><strong>10-second opener:</strong> firm name, PI, area — then route existing clients before they burn new-lead time.</li>
-<li><strong>Save hang-ups:</strong> one last question before you let silent calls drop.</li>
-<li><strong>Train on attorney-switch language</strong> — don’t lose those to speed.</li>
+<li><strong>Save hang-ups:</strong> one last question before silent calls drop, when it makes sense.</li>
+<li><strong>Attorney-switch phrasing:</strong> a steady triage line can help those calls get a fair listen.</li>
 </ul>
 <h3>Ops / routing</h3>
 <ul class="tight"><li>Match headcount to the heatmap (late morning / early afternoon Pacific).</li><li>Send vendor/medical to admin lines.</li></ul>
 <h3>Marketing / PPC</h3>
 <ul class="tight"><li>Pull search terms / LSA queries weekly; add negatives for obvious non-PI.</li></ul>
 <h3>Reporting</h3>
-<ul class="tight"><li>Reconcile CallRail qualified vs signed cases monthly.</li></ul>
+<ul class="tight"><li>Optionally reconcile value-back qualified counts with signed cases over time — useful context, not a verdict.</li></ul>
 
 <div class="takeaway">
-<h2 style="margin-top:0;border:none;">Bottom line</h2>
-<p>You probably don’t need <em>more</em> raw calls as much as <em>cleaner receipt</em>: answer discipline, tagging, and triage. 
-Most of the waste here is preventable — calls that never get scored, or fail before a real conversation. Fixing that usually beats another point of bid.</p>
-<p style="margin-bottom:0;font-size:0.95rem;"><strong>Data caveats:</strong> See the yellow disclaimer box at the top (AI-assisted, imperfect tags, partial months). February export starts Feb 2; Pacific time on heatmap; internal tests removed from main KPI rows.</p>
+<h2 style="margin-top:0;border:none;">Closing note</h2>
+<p>The data here can support a simple question: <em>given the calls you already get, where might a little more clarity or speed help?</em> 
+Higher volume in March doesn’t have to mean anything negative — it’s a prompt to look at patterns (timing, connect quality, tag mix) if you want to tune intake next. 
+Small changes on answer quality and triage sometimes matter as much as media tweaks.</p>
+<p style="margin-bottom:0;font-size:0.95rem;"><strong>Reminder:</strong> See the disclaimer box — AI-assisted, contextual tags, partial March, Feb export starts Feb 2; Pacific time on heatmap; internal tests pulled from main KPI rows.</p>
 </div>
 
 <footer class="note">
