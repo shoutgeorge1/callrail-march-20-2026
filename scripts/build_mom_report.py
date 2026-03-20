@@ -386,14 +386,24 @@ def setup_charts():
     plt.rcParams["font.size"] = 12
 
 
-def bucket_duration_counts(series: pd.Series) -> list[int]:
-    """0-5, 5-10, 10-15, 15-25, 25+ seconds."""
+def bucket_duration_counts(series: pd.Series) -> tuple[list[int], list[str]]:
+    """
+    Wider, more evenly spread buckets (seconds) so bars are comparable across the range.
+    """
     s = series.astype(int)
-    edges = [0, 5, 10, 15, 25, 10**9]
+    edges = [0, 30, 120, 300, 600, 1200, 10**9]
+    labels = [
+        "Under 30 sec",
+        "30 sec–2 min",
+        "2–5 min",
+        "5–10 min",
+        "10–20 min",
+        "20+ min",
+    ]
     out = []
     for lo, hi in zip(edges[:-1], edges[1:]):
         out.append(int(((s >= lo) & (s < hi)).sum()))
-    return out
+    return out, labels
 
 
 # Stacked bar: three gradient families (opportunity / friction / ops & noise)
@@ -511,7 +521,7 @@ def main():
         "VENDOR_PROVIDER_SALES": "Vendor / sales",
         "WRONG_FIRM_ADMIN_EXISTING": "Wrong firm / admin / existing",
         "MEDICAL_SYMPTOM_CONFUSION": "Symptom / illness confusion",
-        "OPERATIONAL_SILENT_DEAD_AIR": "Silent / dead air / abandon",
+        "OPERATIONAL_SILENT_DEAD_AIR": "Silent / abandon / connect",
         "UNCLEAR_UNTAGGED": "Unclear / untagged",
     }
     fb = feb_raw[~feb_raw["internal_test"]]["strategic_bucket"].value_counts().reindex(bucket_order, fill_value=0)
@@ -530,10 +540,9 @@ def main():
     fig.savefig(CHARTS / "mom_bucket_comparison.png", bbox_inches="tight")
     plt.close()
 
-    # 3) Duration by second buckets — Feb vs Mar side by side
-    dur_labels = ["0–5 sec", "5–10 sec", "10–15 sec", "15–25 sec", "25+ sec"]
-    feb_dur = bucket_duration_counts(feb_raw[~feb_raw["internal_test"]]["Duration (seconds)"])
-    mar_dur = bucket_duration_counts(mar_raw[~mar_raw["internal_test"]]["Duration (seconds)"])
+    # 3) Duration buckets — wider spans for a more even spread across call lengths
+    feb_dur, dur_labels = bucket_duration_counts(feb_raw[~feb_raw["internal_test"]]["Duration (seconds)"])
+    mar_dur, _ = bucket_duration_counts(mar_raw[~mar_raw["internal_test"]]["Duration (seconds)"])
     fig, ax = plt.subplots(figsize=(14, 7))
     xh = np.arange(len(dur_labels))
     ax.bar(xh - w / 2, feb_dur, width=w, label="February (full month)", color="#2563eb", edgecolor="white", linewidth=0.8)
@@ -541,7 +550,7 @@ def main():
     ax.set_xticks(xh)
     ax.set_xticklabels(dur_labels, fontsize=14)
     ax.set_ylabel("Number of calls", fontsize=14)
-    ax.set_title("Call length by time bucket — February vs March", fontweight="bold", fontsize=16)
+    ax.set_title("Call length — February vs March (same bucket definitions)", fontweight="bold", fontsize=16)
     ax.tick_params(axis="y", labelsize=13)
     ax.legend(fontsize=13)
     plt.tight_layout()
@@ -570,7 +579,7 @@ def main():
     ax.set_xticks(xs)
     ax.set_xticklabels(cats, fontsize=11)
     ax.set_ylabel("Calls", fontsize=14)
-    ax.set_title("CallRail fields — qualified / not a lead / not scored", fontweight="bold", fontsize=16)
+    ax.set_title("CallRail dispositions — qualified / not a lead / unmarked", fontweight="bold", fontsize=16)
     ax.tick_params(axis="y", labelsize=13)
     ax.legend(fontsize=13)
     plt.tight_layout()
@@ -584,7 +593,7 @@ def main():
     heat = heat.reindex([d for d in day_order if d in heat.index])
     fig, ax = plt.subplots(figsize=(15, 6))
     sns.heatmap(heat, cmap="YlOrRd", ax=ax, cbar_kws={"label": "Calls"}, annot=False)
-    ax.set_xlabel("Hour — Pacific (California)", fontsize=13)
+    ax.set_xlabel("Hour (local)", fontsize=13)
     labs = [hour_label_ampm(int(h)) for h in heat.columns]
     ax.set_xticklabels(labs, rotation=45, ha="right", fontsize=11)
     ax.set_yticklabels(ax.get_yticklabels(), rotation=0, fontsize=12)
@@ -632,33 +641,50 @@ def main():
     fig.savefig(CHARTS / "mom_source_bucket_stacked.png", bbox_inches="tight")
     plt.close()
 
-    # 6) Pie March — legend-only labels to avoid overlap
+    # 6) Pie March — labels + % on slices (nonzero wedges only for readability)
     mc = mar_raw[~mar_raw["internal_test"]]["strategic_bucket"].value_counts().reindex(bucket_order, fill_value=0)
     total_m = int(mc.sum())
-    fig, ax = plt.subplots(figsize=(11, 11))
-    pie_cols = [BUCKET_COLOR[b] for b in bucket_order]
-    wedges, _ = ax.pie(
-        mc.values,
-        labels=None,
-        colors=pie_cols,
-        startangle=90,
-        wedgeprops={"linewidth": 2, "edgecolor": "white"},
-    )
-    leg_lines = [
-        f"{labels[b]}: {int(mc[b])} ({100 * mc[b] / total_m:.1f}%)" if total_m else f"{labels[b]}: 0"
-        for b in bucket_order
-    ]
-    ax.legend(
-        wedges,
-        leg_lines,
-        title="March through 3/20 — share of calls",
-        title_fontsize=15,
-        fontsize=13,
-        loc="center left",
-        bbox_to_anchor=(1.05, 0.5),
-        frameon=True,
-    )
-    ax.set_title("Call intent mix (modeled buckets)", fontsize=17, fontweight="bold", pad=20)
+    short_pie = {
+        "TRUE_POTENTIAL_PI": "True PI",
+        "MINOR_SOFT_TISSUE_PI": "Minor / soft PI",
+        "ATTORNEY_SWITCH_DROPPED": "Atty switch",
+        "NON_PI_WRONG_PRACTICE": "Non-PI",
+        "VENDOR_PROVIDER_SALES": "Vendor",
+        "WRONG_FIRM_ADMIN_EXISTING": "Wrong firm / admin",
+        "MEDICAL_SYMPTOM_CONFUSION": "Symptom",
+        "OPERATIONAL_SILENT_DEAD_AIR": "Silent / abandon",
+        "UNCLEAR_UNTAGGED": "Unclear",
+    }
+    pairs = [(b, int(mc[b])) for b in bucket_order if mc[b] > 0]
+    fig, ax = plt.subplots(figsize=(12, 12))
+    if total_m and pairs:
+        vals = [p[1] for p in pairs]
+        keys = [p[0] for p in pairs]
+        pie_cols = [BUCKET_COLOR[k] for k in keys]
+        pie_lbl = [short_pie[k] for k in keys]
+
+        def autopct_fn(pct):
+            return f"{pct:.1f}%" if pct >= 2.5 else ""
+
+        wedges, texts, autotexts = ax.pie(
+            vals,
+            labels=pie_lbl,
+            autopct=autopct_fn,
+            colors=pie_cols,
+            startangle=90,
+            pctdistance=0.75,
+            labeldistance=1.08,
+            textprops={"fontsize": 11},
+            wedgeprops={"linewidth": 2, "edgecolor": "white"},
+        )
+        for t in autotexts:
+            t.set_fontsize(11)
+            t.set_fontweight("bold")
+        for t in texts:
+            t.set_fontsize(11)
+    else:
+        ax.text(0.5, 0.5, "No data", ha="center", va="center", transform=ax.transAxes)
+    ax.set_title("March (through 3/20) — call intent mix", fontsize=17, fontweight="bold", pad=16)
     plt.tight_layout()
     fig.savefig(CHARTS / "mom_intent_pie_march.png", bbox_inches="tight")
     plt.close()
@@ -685,26 +711,34 @@ def main():
     unc_m = int(mar_b.get("UNCLEAR_UNTAGGED", 0))
 
     disclaimer_p1 = (
-        "This report was drafted with assistance from Cursor AI. Numbers, charts, and modeled buckets may contain mistakes — "
-        "verify anything you rely on for decisions. February had lighter labeling in places; March is incomplete; "
-        "projections are pace-based and rough."
+        "This report was produced with assistance from Cursor AI. Figures and modeled categories may contain errors and should be validated before operational use. "
+        "February labeling is uneven in places; March is partial-month; projections use simple pacing."
     )
     disclaimer_p2 = (
-        "Tags and “qualified” markings in CallRail reflect contextual judgment from listening to calls — they are not a full "
-        "intake QA scorecard and may not match what a formal intake team would classify as a true lead."
+        "Tags and modeled buckets summarize call content; they do not replace a formal intake QA program or a legal determination of a “lead.”"
     )
     disclaimer_p3 = (
-        "“Qualified lead” here means calls you chose to mark for Google value-back (your workflow), not an independent measure of lead quality. "
-        "The CallRail “Not scored” field is just that — a field state — not evidence of a failed scoring program."
+        "Only calls marked “Qualified Lead” carry value-back scoring to Google. That marking reflects operator judgment from listening to recordings — not an independent measure of lead quality. "
+        "Other calls remain in the default CallRail disposition until explicitly marked."
     )
 
-    # "What changed" — short bullets (no long paragraphs)
-    bullets_what_changed = f"""
-<li><strong>Call volume:</strong> About <strong>{k_mar['n']:,}</strong> calls in the first 20 days of March vs <strong>{k_feb['n']:,}</strong> across February’s export — daily pace is higher in March.</li>
-<li><strong>Marked qualified (value-back to Google):</strong> Share of calls marked “Qualified Lead” went from <strong>{k_feb['ql_rate']:.1f}%</strong> to <strong>{k_mar['ql_rate']:.1f}%</strong> — that’s your judgment for value-back, not an objective score.</li>
-<li><strong>CallRail “Not scored” field:</strong> <strong>{k_mar['not_scored']:,}</strong> March vs <strong>{k_feb['not_scored']:,}</strong> February — mostly calls you haven’t marked for Google value-back; neutral context, not a “bad intake” KPI.</li>
-<li><strong>Google/Meta vs Direct/GMB:</strong> PPC-heavy (Google Ads + Meta) <strong>{ppc_f}</strong> → <strong>{ppc_m}</strong>; Direct + GMB <strong>{br_f}</strong> → <strong>{br_m}</strong>.</li>
-<li><strong>Modeled buckets (rough):</strong> Silent/dead-air style <strong>{silent_f}</strong> → <strong>{silent_m}</strong>; wrong-firm/admin/existing <strong>{wf_f}</strong> → <strong>{wf_m}</strong>; non-PI wrong practice <strong>{npi_f}</strong> → <strong>{npi_m}</strong>; attorney-switch signals <strong>{as_f}</strong> → <strong>{as_m}</strong>; symptom confusion <strong>{med_f}</strong> → <strong>{med_m}</strong>; unclear/untagged <strong>{unc_f}</strong> → <strong>{unc_m}</strong>.</li>
+    what_changed_table = f"""
+<table class="change-grid">
+<thead><tr><th>Area</th><th>February (export)</th><th>March (through 3/20)</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Total calls</td><td>{k_feb["n"]:,}</td><td>{k_mar["n"]:,}</td><td>March window is partial; per-day pace is higher.</td></tr>
+<tr><td>Share marked qualified (value-back)</td><td>{k_feb["ql_rate"]:.1f}%</td><td>{k_mar["ql_rate"]:.1f}%</td><td>Qualified marks are applied only where value-back is intended.</td></tr>
+<tr><td>Default disposition (unmarked)</td><td>{k_feb["not_scored"]:,}</td><td>{k_mar["not_scored"]:,}</td><td>Calls without a value-back mark; not an intake quality score.</td></tr>
+<tr><td>Google Ads + Meta</td><td>{ppc_f}</td><td>{ppc_m}</td><td>Paid search / paid social.</td></tr>
+<tr><td>Direct + GMB</td><td>{br_f}</td><td>{br_m}</td><td>Brand-leaning and direct-line sources.</td></tr>
+<tr><td>Modeled: silent / abandon / connect</td><td>{silent_f}</td><td>{silent_m}</td><td>Tag-based; directional.</td></tr>
+<tr><td>Modeled: wrong firm / admin / existing</td><td>{wf_f}</td><td>{wf_m}</td><td>—</td></tr>
+<tr><td>Modeled: non-PI wrong practice</td><td>{npi_f}</td><td>{npi_m}</td><td>—</td></tr>
+<tr><td>Modeled: attorney-switch signals</td><td>{as_f}</td><td>{as_m}</td><td>—</td></tr>
+<tr><td>Modeled: symptom confusion</td><td>{med_f}</td><td>{med_m}</td><td>—</td></tr>
+<tr><td>Modeled: unclear / untagged</td><td>{unc_f}</td><td>{unc_m}</td><td>—</td></tr>
+</tbody>
+</table>
 """
 
     html_out = f"""<!DOCTYPE html>
@@ -750,8 +784,10 @@ h1 {{ font-size: 1.85rem; margin: 0 0 0.5rem; font-weight: 700; }}
 .disclaimer p {{ margin: 0.35rem 0; }}
 .disclaimer p:first-child {{ margin-top: 0; }}
 .disclaimer p:last-child {{ margin-bottom: 0; }}
-.change-list {{ margin: 0.5rem 0 0; padding-left: 1.2rem; }}
-.change-list li {{ margin: 0.5rem 0; line-height: 1.5; }}
+.change-grid {{ width: 100%; border-collapse: collapse; font-size: 0.88rem; margin: 1rem 0; background: var(--card); box-shadow: 0 1px 3px rgba(0,0,0,.06); }}
+.change-grid th, .change-grid td {{ border: 1px solid var(--line); padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }}
+.change-grid th {{ background: #ecfdf5; font-weight: 600; }}
+.change-grid tr:nth-child(even) td {{ background: #fafaf9; }}
 .takeaway-line {{ font-size: 0.95rem; color: var(--muted); margin: 0.4rem 0 1rem; max-width: 48rem; }}
 h2 {{
   font-size: 1.35rem;
@@ -803,8 +839,8 @@ footer.note {{ font-size: 0.85rem; color: var(--muted); margin-top: 2rem; }}
 <div class="wrap">
 <header>
   <h1>February vs March 2026 — Intake &amp; Call Quality</h1>
-  <p class="sub">March numbers are <strong>through March 20, 2026</strong> (Pacific). February is the <strong>export window in file</strong> (starts Feb 2 in this dataset). 
-  Month-end projection for March = first 20 days scaled to 31 days — rough, not a forecast.</p>
+  <p class="sub">March figures are <strong>through March 20, 2026</strong>. February reflects the <strong>export window in file</strong> (starts Feb 2 in this dataset). 
+  March month-end projection scales the first 20 days to 31 days — illustrative only.</p>
 </header>
 
 <div class="disclaimer">
@@ -813,12 +849,12 @@ footer.note {{ font-size: 0.85rem; color: var(--muted); margin-top: 2rem; }}
   <p>{html.escape(disclaimer_p3)}</p>
 </div>
 
-<h2>Definitions (plain English)</h2>
+<h2>Definitions</h2>
 <div class="def">
-<p><strong>Qualified / value-back</strong> — Calls you marked “Qualified Lead” because you intend to send value back to Google. That’s your call — not an independent quality score.</p>
-<p><strong>True PI (modeled)</strong> — A rough machine read from tags + status for injury-shaped opportunity. It’s a label for charts, not a substitute for your ear on the line.</p>
-<p><strong>Not scored (CallRail field)</strong> — The default bucket when you haven’t applied that value-back marking. It isn’t a failed “scoring program.”</p>
-<p><strong>Intake failure / dead-air bucket</strong> — Hang-ups, abandoned calls, silent/dead-air tags, or very short connects. Usually connect or handling, not “bad ads” by itself.</p>
+<p><strong>Qualified Lead (value-back)</strong> — Calls marked in CallRail for Google value-back. In this workflow, value and scoring are applied only there, based on operator judgment from listening to recordings.</p>
+<p><strong>True PI (modeled)</strong> — A coarse category from tags and status for reporting; not equivalent to a retained case or a firm’s intake definition.</p>
+<p><strong>Default disposition (unmarked)</strong> — Calls without a value-back mark; neutral administrative state.</p>
+<p><strong>Silent / abandon / connect (modeled)</strong> — Hang-ups, abandoned rings, silent or dead-air tags, or very short connects — grouped for volume analysis, not as a critique of intake staff.</p>
 </div>
 
 <h2>Snapshot KPIs</h2>
@@ -833,7 +869,7 @@ footer.note {{ font-size: 0.85rem; color: var(--muted); margin-top: 2rem; }}
 <tr><td>Median duration</td><td>{fmt_duration_human(int(round(k_feb["median_dur"])))}</td><td>{fmt_duration_human(int(round(k_mar["median_dur"])))}</td><td>—</td><td>—</td></tr>
 <tr><td>Calls with tags</td><td>{k_feb["tagged"]:,}</td><td>{k_mar["tagged"]:,}</td><td>{int(round(k_mar_proj["tagged"])):,}</td><td>—</td></tr>
 <tr><td>Marked qualified (Google value-back)</td><td>{k_feb["qualified_leads"]:,}</td><td>{k_mar["qualified_leads"]:,}</td><td>{int(round(k_mar_proj["qualified_leads"])):,}</td><td>—</td></tr>
-<tr><td>CallRail “Not scored” (field, not a failure metric)</td><td>{k_feb["not_scored"]:,}</td><td>{k_mar["not_scored"]:,}</td><td>{int(round(k_mar_proj["not_scored"])):,}</td><td>{pct_change(k_mar["not_scored"], k_feb["not_scored"])} (actual)</td></tr>
+<tr><td>Default disposition (unmarked)</td><td>{k_feb["not_scored"]:,}</td><td>{k_mar["not_scored"]:,}</td><td>{int(round(k_mar_proj["not_scored"])):,}</td><td>{pct_change(k_mar["not_scored"], k_feb["not_scored"])} (actual)</td></tr>
 <tr><td>Share marked qualified (value-back)</td><td>{k_feb["ql_rate"]:.1f}%</td><td>{k_mar["ql_rate"]:.1f}%</td><td>{k_mar["ql_rate"]:.1f}%</td><td>{pct_change(k_mar["ql_rate"], k_feb["ql_rate"])}</td></tr>
 <tr><td>True PI (modeled count)</td><td>{k_feb["true_pi_est"]:,}</td><td>{k_mar["true_pi_est"]:,}</td><td>{k_mar_proj["true_pi_est"]:,}</td><td>{pct_change(k_mar["true_pi_est"], k_feb["true_pi_est"])}</td></tr>
 <tr><td>Internal tests (raw)</td><td>{int(feb_int)}</td><td>{int(mar_int)}</td><td>—</td><td>—</td></tr>
@@ -842,13 +878,11 @@ footer.note {{ font-size: 0.85rem; color: var(--muted); margin-top: 2rem; }}
 <p style="font-size:0.9rem;color:var(--muted)">February export begins <strong>Feb 2</strong> in this file (no Feb 1 rows). March projection assumes March pace stays flat — see projection commentary.</p>
 
 <h2>What changed (February → March)</h2>
-<ul class="change-list">
-{bullets_what_changed}
-</ul>
-<p class="takeaway-line"><strong>Plain read:</strong> Volume is up; value-back share and modeled buckets are the follow-on questions — not “not scored” as a guilt metric.</p>
+{what_changed_table}
+<p class="takeaway-line"><strong>Reading the table:</strong> Volume and source mix describe demand; value-back share describes how much traffic carries a Google value signal; modeled rows summarize tag language for trend spotting.</p>
 
-<h2>CallRail fields — qualified vs not scored</h2>
-<p class="takeaway-line">This is how often calls sit in each CallRail disposition field. “Not scored” usually means you haven’t marked value-back yet — not that intake failed.</p>
+<h2>CallRail disposition fields</h2>
+<p class="takeaway-line">Count of calls in each disposition bucket. The default “unmarked” state is expected when value-back marking is selective.</p>
 <div class="figure"><img src="charts/mom_scoring_coverage.png" alt="CallRail fields"/><p>February = full export; March = through Mar 20 (shorter window).</p></div>
 
 <h2>Source mix</h2>
@@ -860,57 +894,56 @@ footer.note {{ font-size: 0.85rem; color: var(--muted); margin-top: 2rem; }}
 <div class="figure"><img src="charts/mom_bucket_comparison.png" alt="Buckets"/></div>
 
 <h2>March call intent mix</h2>
-<p class="takeaway-line">Share of March (through 3/20). Counts and % are in the legend so labels don’t overlap.</p>
+<p class="takeaway-line">Share of March (through 3/20). Labels and percentages appear on the chart (slices under ~2.5% may omit the percentage to reduce clutter).</p>
 <div class="figure"><img src="charts/mom_intent_pie_march.png" alt="Intent pie"/></div>
 
-<h2>Call length — short buckets</h2>
-<p class="takeaway-line">Compare the <strong>same second-length buckets</strong> for each month. Heavy left side = more hang-ups / failed connects. 
+<h2>Call length by bucket</h2>
+<p class="takeaway-line">Same duration buckets for both months (wider spans than raw seconds so the distribution is easier to read side by side). 
 Median March handle time: <strong>{fmt_duration_human(int(round(k_mar["median_dur"])))}</strong> ({duration_comment(int(k_mar["median_dur"]), med_ref)})</p>
 <div class="figure"><img src="charts/mom_duration_buckets.png" alt="Duration buckets"/></div>
 
 <h2>When calls arrive — March heatmap</h2>
-<p class="takeaway-line">Pacific time, 12-hour style on the axis. Staff the warm cells first.</p>
+<p class="takeaway-line">Local time (12-hour labels). Warmer cells indicate higher call counts by weekday and hour.</p>
 <div class="figure"><img src="charts/mom_heatmap_march.png" alt="Heatmap"/></div>
 
 <h2>Source × bucket — March</h2>
-<p class="takeaway-line">Greens = opportunity-style buckets; oranges = wrong practice / wrong firm &amp; admin; purples = vendor, dead-air/silent, unclear. Same legend as color key on the chart.</p>
+<p class="takeaway-line">Greens = opportunity-style modeled buckets; oranges = non-PI / wrong firm &amp; admin; purples = vendor, silent/abandon/connect, unclear. Legend matches the chart.</p>
 <div class="figure"><img src="charts/mom_source_bucket_stacked.png" alt="Stacked"/></div>
 
 <h2>Projection commentary (March month-end)</h2>
 <ul class="tight">
-<li><strong>Projected March calls (excl. tests):</strong> ~{k_mar_proj["n"]:,} if the first 20 days represent the whole month.</li>
-<li><strong>Caveat:</strong> Pace can <em>overstate</em> if the last third of March is slower (weekends, budget caps) or <em>understate</em> if you run heavy weekend LSA/PPC.</li>
-<li><strong>If nothing changes:</strong> you may still see volume grow while only part of the story is visible in tags.</li>
-<li><strong>Operational angle:</strong> fewer dead-air connects usually helps conversion without changing ad spend.</li>
+<li><strong>Projected March calls (excl. tests):</strong> ~{k_mar_proj["n"]:,} if the first 20 days were representative of the full month.</li>
+<li><strong>Caveat:</strong> Pace can land high or low depending on weekends, budget caps, or campaign changes in the final weeks.</li>
+<li><strong>Volume vs. story:</strong> call counts can rise while tag mix and value-back marks tell a separate story.</li>
 </ul>
 
-<h2>Operational notes</h2>
+<h2>Operational context</h2>
 <ul class="tight">
-<li>Dead-air and abandon calls are often fixable with answer speed, IVR, and staffing on the heatmap peaks.</li>
-<li>Attorney-switch and “messy” injury stories need a calm triage script — not instant disqualify.</li>
+<li>Connect timing and routing interact with marketing volume; heatmaps help align staffing with observed peaks.</li>
+<li>Complex or non-standard inquiries may benefit from consistent triage scripts as part of normal scaling.</li>
 </ul>
 
-<h2>Recommended actions</h2>
-<h3>Intake (priority)</h3>
+<h2>Recommendations — general practices (PI scaling)</h2>
+<p class="takeaway-line">These are common practices for growing personal injury firms; they should be adapted to the firm’s operating model and resources.</p>
+<h3>Intake &amp; disposition</h3>
 <ul class="tight">
-<li><strong>Value-back marking:</strong> keep using “qualified” the way you already do for Google — this report doesn’t treat “not scored” as a problem on its own.</li>
-<li><strong>10-second opener:</strong> firm name, PI, area — then route existing clients before they burn new-lead time.</li>
-<li><strong>Save hang-ups:</strong> one last question before silent calls drop, when it makes sense.</li>
-<li><strong>Attorney-switch phrasing:</strong> a steady triage line can help those calls get a fair listen.</li>
+<li>Keep a clear rule for when a call receives a value-back mark versus remaining in the default disposition.</li>
+<li>Use a short, consistent opening (firm name, practice focus, geography) before routing callers.</li>
+<li>Document triage paths for common non-case or referral scenarios so the process scales with volume.</li>
 </ul>
-<h3>Ops / routing</h3>
-<ul class="tight"><li>Match headcount to the heatmap (late morning / early afternoon Pacific).</li><li>Send vendor/medical to admin lines.</li></ul>
-<h3>Marketing / PPC</h3>
-<ul class="tight"><li>Pull search terms / LSA queries weekly; add negatives for obvious non-PI.</li></ul>
-<h3>Reporting</h3>
-<ul class="tight"><li>Optionally reconcile value-back qualified counts with signed cases over time — useful context, not a verdict.</li></ul>
+<h3>Operations &amp; routing</h3>
+<ul class="tight"><li>Align coverage with peak hours from the heatmap; add overflow or backup coverage when volume grows.</li><li>Separate vendor, medical, or administrative lines where volume warrants it.</li></ul>
+<h3>Marketing &amp; PPC</h3>
+<ul class="tight"><li>Review search terms and LSA queries on a cadence that matches spend; refresh negative keywords as new patterns appear.</li><li>Compare source mix month to month before changing bids — quality shifts often show up in source mix first.</li></ul>
+<h3>Reporting &amp; QA</h3>
+<ul class="tight"><li>Periodically align CallRail marked-qualified counts with firm intake or CRM outcomes for calibration.</li><li>Sample recorded calls when tag categories shift materially.</li></ul>
 
 <div class="takeaway">
-<h2 style="margin-top:0;border:none;">Closing note</h2>
-<p>The data here can support a simple question: <em>given the calls you already get, where might a little more clarity or speed help?</em> 
-Higher volume in March doesn’t have to mean anything negative — it’s a prompt to look at patterns (timing, connect quality, tag mix) if you want to tune intake next. 
-Small changes on answer quality and triage sometimes matter as much as media tweaks.</p>
-<p style="margin-bottom:0;font-size:0.95rem;"><strong>Reminder:</strong> See the disclaimer box — AI-assisted, contextual tags, partial March, Feb export starts Feb 2; Pacific time on heatmap; internal tests pulled from main KPI rows.</p>
+<h2 style="margin-top:0;border:none;">Summary</h2>
+<p>The comparison is intended as a neutral snapshot: volume and source mix, selective value-back marking, and a coarse tag-based view of call themes. 
+March shows higher daily pace than the February export window; the appropriate response is firm-specific. 
+Operational improvements (routing, coverage, triage consistency) often scale alongside media spend.</p>
+<p style="margin-bottom:0;font-size:0.95rem;"><strong>Reminder:</strong> See the disclaimer box — AI-assisted, contextual tags, partial March, February export starts Feb 2; local time on heatmap; internal tests excluded from main KPI rows.</p>
 </div>
 
 <footer class="note">

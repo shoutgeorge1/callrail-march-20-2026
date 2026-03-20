@@ -41,8 +41,10 @@ h1 { font-size: 1.85rem; margin: 0 0 0.5rem; font-weight: 700; }
 .disclaimer p { margin: 0.35rem 0; }
 .disclaimer p:first-child { margin-top: 0; }
 .disclaimer p:last-child { margin-bottom: 0; }
-.change-list { margin: 0.5rem 0 0; padding-left: 1.2rem; }
-.change-list li { margin: 0.5rem 0; line-height: 1.5; }
+.change-grid { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin: 1rem 0; background: var(--card); box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.change-grid th, .change-grid td { border: 1px solid var(--line); padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+.change-grid th { background: #ecfdf5; font-weight: 600; }
+.change-grid tr:nth-child(even) td { background: #fafaf9; }
 .takeaway-line { font-size: 0.95rem; color: var(--muted); margin: 0.4rem 0 1rem; max-width: 48rem; }
 h2 {
   font-size: 1.35rem;
@@ -94,22 +96,22 @@ footer.note { font-size: 0.85rem; color: var(--muted); margin-top: 2rem; }
 <div class="wrap">
 <header>
   <h1>February vs March 2026 — Intake &amp; Call Quality</h1>
-  <p class="sub">March numbers are <strong>through March 20, 2026</strong> (Pacific). February is the <strong>export window in file</strong> (starts Feb 2 in this dataset). 
-  Month-end projection for March = first 20 days scaled to 31 days — rough, not a forecast.</p>
+  <p class="sub">March figures are <strong>through March 20, 2026</strong>. February reflects the <strong>export window in file</strong> (starts Feb 2 in this dataset). 
+  March month-end projection scales the first 20 days to 31 days — illustrative only.</p>
 </header>
 
 <div class="disclaimer">
-  <p>This report was drafted with assistance from Cursor AI. Numbers, charts, and modeled buckets may contain mistakes — verify anything you rely on for decisions. February had lighter labeling in places; March is incomplete; projections are pace-based and rough.</p>
-  <p>Tags and “qualified” markings in CallRail reflect contextual judgment from listening to calls — they are not a full intake QA scorecard and may not match what a formal intake team would classify as a true lead.</p>
-  <p>“Qualified lead” here means calls you chose to mark for Google value-back (your workflow), not an independent measure of lead quality. The CallRail “Not scored” field is just that — a field state — not evidence of a failed scoring program.</p>
+  <p>This report was produced with assistance from Cursor AI. Figures and modeled categories may contain errors and should be validated before operational use. February labeling is uneven in places; March is partial-month; projections use simple pacing.</p>
+  <p>Tags and modeled buckets summarize call content; they do not replace a formal intake QA program or a legal determination of a “lead.”</p>
+  <p>Only calls marked “Qualified Lead” carry value-back scoring to Google. That marking reflects operator judgment from listening to recordings — not an independent measure of lead quality. Other calls remain in the default CallRail disposition until explicitly marked.</p>
 </div>
 
-<h2>Definitions (plain English)</h2>
+<h2>Definitions</h2>
 <div class="def">
-<p><strong>Qualified / value-back</strong> — Calls you marked “Qualified Lead” because you intend to send value back to Google. That’s your call — not an independent quality score.</p>
-<p><strong>True PI (modeled)</strong> — A rough machine read from tags + status for injury-shaped opportunity. It’s a label for charts, not a substitute for your ear on the line.</p>
-<p><strong>Not scored (CallRail field)</strong> — The default bucket when you haven’t applied that value-back marking. It isn’t a failed “scoring program.”</p>
-<p><strong>Intake failure / dead-air bucket</strong> — Hang-ups, abandoned calls, silent/dead-air tags, or very short connects. Usually connect or handling, not “bad ads” by itself.</p>
+<p><strong>Qualified Lead (value-back)</strong> — Calls marked in CallRail for Google value-back. In this workflow, value and scoring are applied only there, based on operator judgment from listening to recordings.</p>
+<p><strong>True PI (modeled)</strong> — A coarse category from tags and status for reporting; not equivalent to a retained case or a firm’s intake definition.</p>
+<p><strong>Default disposition (unmarked)</strong> — Calls without a value-back mark; neutral administrative state.</p>
+<p><strong>Silent / abandon / connect (modeled)</strong> — Hang-ups, abandoned rings, silent or dead-air tags, or very short connects — grouped for volume analysis, not as a critique of intake staff.</p>
 </div>
 
 <h2>Snapshot KPIs</h2>
@@ -124,7 +126,7 @@ footer.note { font-size: 0.85rem; color: var(--muted); margin-top: 2rem; }
 <tr><td>Median duration</td><td>2 min 22 sec</td><td>2 min 38 sec</td><td>—</td><td>—</td></tr>
 <tr><td>Calls with tags</td><td>191</td><td>419</td><td>649</td><td>—</td></tr>
 <tr><td>Marked qualified (Google value-back)</td><td>17</td><td>65</td><td>101</td><td>—</td></tr>
-<tr><td>CallRail “Not scored” (field, not a failure metric)</td><td>351</td><td>381</td><td>591</td><td>+8.5% (actual)</td></tr>
+<tr><td>Default disposition (unmarked)</td><td>351</td><td>381</td><td>591</td><td>+8.5% (actual)</td></tr>
 <tr><td>Share marked qualified (value-back)</td><td>4.5%</td><td>12.1%</td><td>12.1%</td><td>+170.1%</td></tr>
 <tr><td>True PI (modeled count)</td><td>30</td><td>63</td><td>98</td><td>+110.0%</td></tr>
 <tr><td>Internal tests (raw)</td><td>0</td><td>5</td><td>—</td><td>—</td></tr>
@@ -133,19 +135,28 @@ footer.note { font-size: 0.85rem; color: var(--muted); margin-top: 2rem; }
 <p style="font-size:0.9rem;color:var(--muted)">February export begins <strong>Feb 2</strong> in this file (no Feb 1 rows). March projection assumes March pace stays flat — see projection commentary.</p>
 
 <h2>What changed (February → March)</h2>
-<ul class="change-list">
 
-<li><strong>Call volume:</strong> About <strong>538</strong> calls in the first 20 days of March vs <strong>380</strong> across February’s export — daily pace is higher in March.</li>
-<li><strong>Marked qualified (value-back to Google):</strong> Share of calls marked “Qualified Lead” went from <strong>4.5%</strong> to <strong>12.1%</strong> — that’s your judgment for value-back, not an objective score.</li>
-<li><strong>CallRail “Not scored” field:</strong> <strong>381</strong> March vs <strong>351</strong> February — mostly calls you haven’t marked for Google value-back; neutral context, not a “bad intake” KPI.</li>
-<li><strong>Google/Meta vs Direct/GMB:</strong> PPC-heavy (Google Ads + Meta) <strong>98</strong> → <strong>239</strong>; Direct + GMB <strong>134</strong> → <strong>188</strong>.</li>
-<li><strong>Modeled buckets (rough):</strong> Silent/dead-air style <strong>40</strong> → <strong>61</strong>; wrong-firm/admin/existing <strong>48</strong> → <strong>106</strong>; non-PI wrong practice <strong>13</strong> → <strong>90</strong>; attorney-switch signals <strong>5</strong> → <strong>8</strong>; symptom confusion <strong>0</strong> → <strong>5</strong>; unclear/untagged <strong>178</strong> → <strong>106</strong>.</li>
+<table class="change-grid">
+<thead><tr><th>Area</th><th>February (export)</th><th>March (through 3/20)</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Total calls</td><td>380</td><td>538</td><td>March window is partial; per-day pace is higher.</td></tr>
+<tr><td>Share marked qualified (value-back)</td><td>4.5%</td><td>12.1%</td><td>Qualified marks are applied only where value-back is intended.</td></tr>
+<tr><td>Default disposition (unmarked)</td><td>351</td><td>381</td><td>Calls without a value-back mark; not an intake quality score.</td></tr>
+<tr><td>Google Ads + Meta</td><td>98</td><td>239</td><td>Paid search / paid social.</td></tr>
+<tr><td>Direct + GMB</td><td>134</td><td>188</td><td>Brand-leaning and direct-line sources.</td></tr>
+<tr><td>Modeled: silent / abandon / connect</td><td>40</td><td>61</td><td>Tag-based; directional.</td></tr>
+<tr><td>Modeled: wrong firm / admin / existing</td><td>48</td><td>106</td><td>—</td></tr>
+<tr><td>Modeled: non-PI wrong practice</td><td>13</td><td>90</td><td>—</td></tr>
+<tr><td>Modeled: attorney-switch signals</td><td>5</td><td>8</td><td>—</td></tr>
+<tr><td>Modeled: symptom confusion</td><td>0</td><td>5</td><td>—</td></tr>
+<tr><td>Modeled: unclear / untagged</td><td>178</td><td>106</td><td>—</td></tr>
+</tbody>
+</table>
 
-</ul>
-<p class="takeaway-line"><strong>Plain read:</strong> Volume is up; value-back share and modeled buckets are the follow-on questions — not “not scored” as a guilt metric.</p>
+<p class="takeaway-line"><strong>Reading the table:</strong> Volume and source mix describe demand; value-back share describes how much traffic carries a Google value signal; modeled rows summarize tag language for trend spotting.</p>
 
-<h2>CallRail fields — qualified vs not scored</h2>
-<p class="takeaway-line">This is how often calls sit in each CallRail disposition field. “Not scored” usually means you haven’t marked value-back yet — not that intake failed.</p>
+<h2>CallRail disposition fields</h2>
+<p class="takeaway-line">Count of calls in each disposition bucket. The default “unmarked” state is expected when value-back marking is selective.</p>
 <div class="figure"><img src="charts/mom_scoring_coverage.png" alt="CallRail fields"/><p>February = full export; March = through Mar 20 (shorter window).</p></div>
 
 <h2>Source mix</h2>
@@ -157,57 +168,56 @@ footer.note { font-size: 0.85rem; color: var(--muted); margin-top: 2rem; }
 <div class="figure"><img src="charts/mom_bucket_comparison.png" alt="Buckets"/></div>
 
 <h2>March call intent mix</h2>
-<p class="takeaway-line">Share of March (through 3/20). Counts and % are in the legend so labels don’t overlap.</p>
+<p class="takeaway-line">Share of March (through 3/20). Labels and percentages appear on the chart (slices under ~2.5% may omit the percentage to reduce clutter).</p>
 <div class="figure"><img src="charts/mom_intent_pie_march.png" alt="Intent pie"/></div>
 
-<h2>Call length — short buckets</h2>
-<p class="takeaway-line">Compare the <strong>same second-length buckets</strong> for each month. Heavy left side = more hang-ups / failed connects. 
+<h2>Call length by bucket</h2>
+<p class="takeaway-line">Same duration buckets for both months (wider spans than raw seconds so the distribution is easier to read side by side). 
 Median March handle time: <strong>2 min 38 sec</strong> (Typical consult range — enough time to qualify most calls.)</p>
 <div class="figure"><img src="charts/mom_duration_buckets.png" alt="Duration buckets"/></div>
 
 <h2>When calls arrive — March heatmap</h2>
-<p class="takeaway-line">Pacific time, 12-hour style on the axis. Staff the warm cells first.</p>
+<p class="takeaway-line">Local time (12-hour labels). Warmer cells indicate higher call counts by weekday and hour.</p>
 <div class="figure"><img src="charts/mom_heatmap_march.png" alt="Heatmap"/></div>
 
 <h2>Source × bucket — March</h2>
-<p class="takeaway-line">Greens = opportunity-style buckets; oranges = wrong practice / wrong firm &amp; admin; purples = vendor, dead-air/silent, unclear. Same legend as color key on the chart.</p>
+<p class="takeaway-line">Greens = opportunity-style modeled buckets; oranges = non-PI / wrong firm &amp; admin; purples = vendor, silent/abandon/connect, unclear. Legend matches the chart.</p>
 <div class="figure"><img src="charts/mom_source_bucket_stacked.png" alt="Stacked"/></div>
 
 <h2>Projection commentary (March month-end)</h2>
 <ul class="tight">
-<li><strong>Projected March calls (excl. tests):</strong> ~834 if the first 20 days represent the whole month.</li>
-<li><strong>Caveat:</strong> Pace can <em>overstate</em> if the last third of March is slower (weekends, budget caps) or <em>understate</em> if you run heavy weekend LSA/PPC.</li>
-<li><strong>If nothing changes:</strong> you may still see volume grow while only part of the story is visible in tags.</li>
-<li><strong>Operational angle:</strong> fewer dead-air connects usually helps conversion without changing ad spend.</li>
+<li><strong>Projected March calls (excl. tests):</strong> ~834 if the first 20 days were representative of the full month.</li>
+<li><strong>Caveat:</strong> Pace can land high or low depending on weekends, budget caps, or campaign changes in the final weeks.</li>
+<li><strong>Volume vs. story:</strong> call counts can rise while tag mix and value-back marks tell a separate story.</li>
 </ul>
 
-<h2>Operational notes</h2>
+<h2>Operational context</h2>
 <ul class="tight">
-<li>Dead-air and abandon calls are often fixable with answer speed, IVR, and staffing on the heatmap peaks.</li>
-<li>Attorney-switch and “messy” injury stories need a calm triage script — not instant disqualify.</li>
+<li>Connect timing and routing interact with marketing volume; heatmaps help align staffing with observed peaks.</li>
+<li>Complex or non-standard inquiries may benefit from consistent triage scripts as part of normal scaling.</li>
 </ul>
 
-<h2>Recommended actions</h2>
-<h3>Intake (priority)</h3>
+<h2>Recommendations — general practices (PI scaling)</h2>
+<p class="takeaway-line">These are common practices for growing personal injury firms; they should be adapted to the firm’s operating model and resources.</p>
+<h3>Intake &amp; disposition</h3>
 <ul class="tight">
-<li><strong>Value-back marking:</strong> keep using “qualified” the way you already do for Google — this report doesn’t treat “not scored” as a problem on its own.</li>
-<li><strong>10-second opener:</strong> firm name, PI, area — then route existing clients before they burn new-lead time.</li>
-<li><strong>Save hang-ups:</strong> one last question before silent calls drop, when it makes sense.</li>
-<li><strong>Attorney-switch phrasing:</strong> a steady triage line can help those calls get a fair listen.</li>
+<li>Keep a clear rule for when a call receives a value-back mark versus remaining in the default disposition.</li>
+<li>Use a short, consistent opening (firm name, practice focus, geography) before routing callers.</li>
+<li>Document triage paths for common non-case or referral scenarios so the process scales with volume.</li>
 </ul>
-<h3>Ops / routing</h3>
-<ul class="tight"><li>Match headcount to the heatmap (late morning / early afternoon Pacific).</li><li>Send vendor/medical to admin lines.</li></ul>
-<h3>Marketing / PPC</h3>
-<ul class="tight"><li>Pull search terms / LSA queries weekly; add negatives for obvious non-PI.</li></ul>
-<h3>Reporting</h3>
-<ul class="tight"><li>Optionally reconcile value-back qualified counts with signed cases over time — useful context, not a verdict.</li></ul>
+<h3>Operations &amp; routing</h3>
+<ul class="tight"><li>Align coverage with peak hours from the heatmap; add overflow or backup coverage when volume grows.</li><li>Separate vendor, medical, or administrative lines where volume warrants it.</li></ul>
+<h3>Marketing &amp; PPC</h3>
+<ul class="tight"><li>Review search terms and LSA queries on a cadence that matches spend; refresh negative keywords as new patterns appear.</li><li>Compare source mix month to month before changing bids — quality shifts often show up in source mix first.</li></ul>
+<h3>Reporting &amp; QA</h3>
+<ul class="tight"><li>Periodically align CallRail marked-qualified counts with firm intake or CRM outcomes for calibration.</li><li>Sample recorded calls when tag categories shift materially.</li></ul>
 
 <div class="takeaway">
-<h2 style="margin-top:0;border:none;">Closing note</h2>
-<p>The data here can support a simple question: <em>given the calls you already get, where might a little more clarity or speed help?</em> 
-Higher volume in March doesn’t have to mean anything negative — it’s a prompt to look at patterns (timing, connect quality, tag mix) if you want to tune intake next. 
-Small changes on answer quality and triage sometimes matter as much as media tweaks.</p>
-<p style="margin-bottom:0;font-size:0.95rem;"><strong>Reminder:</strong> See the disclaimer box — AI-assisted, contextual tags, partial March, Feb export starts Feb 2; Pacific time on heatmap; internal tests pulled from main KPI rows.</p>
+<h2 style="margin-top:0;border:none;">Summary</h2>
+<p>The comparison is intended as a neutral snapshot: volume and source mix, selective value-back marking, and a coarse tag-based view of call themes. 
+March shows higher daily pace than the February export window; the appropriate response is firm-specific. 
+Operational improvements (routing, coverage, triage consistency) often scale alongside media spend.</p>
+<p style="margin-bottom:0;font-size:0.95rem;"><strong>Reminder:</strong> See the disclaimer box — AI-assisted, contextual tags, partial March, February export starts Feb 2; local time on heatmap; internal tests excluded from main KPI rows.</p>
 </div>
 
 <footer class="note">
