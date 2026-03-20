@@ -13,8 +13,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-# --- Paths ---
-ROOT = Path(__file__).resolve().parent
+# --- Paths (repo root = parent of scripts/) ---
+ROOT = Path(__file__).resolve().parent.parent
 DATA = Path(r"c:\Users\georgea\Downloads\Call List-2026-03-20 (1).xlsx")
 OUT = ROOT / "report_output"
 CHARTS = OUT / "charts"
