@@ -1,0 +1,14 @@
+{
+  "total_calls": 977,
+  "calls_with_transcripts": 977,
+  "calls_without_transcripts": 0,
+  "detected_fields": [
+    "call_id",
+    "duration",
+    "recording_url",
+    "source",
+    "tracking_phone_number",
+    "transcription"
+  ],
+  "transcript_field_name": "transcription"
+}

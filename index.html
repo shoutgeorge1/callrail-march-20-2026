@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>February vs March 2026 — Intake & Call Quality</title>
+<title>Call quality & intake report</title>
 <style>
 :root {
   --text: #1c1917;
@@ -18,203 +18,273 @@ body {
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   color: var(--text);
   background: var(--bg);
-  line-height: 1.6;
+  line-height: 1.55;
   margin: 0;
-  padding: 0 1.25rem 3rem;
+  padding: 0 0 2.5rem;
 }
-.wrap { max-width: 980px; margin: 0 auto; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 1.25rem; }
 header {
-  padding: 2rem 0 1rem;
+  padding: 1.75rem 0 1rem;
   border-bottom: 4px solid var(--accent);
 }
-h1 { font-size: 1.85rem; margin: 0 0 0.5rem; font-weight: 700; }
-.sub { color: var(--muted); font-size: 1.05rem; max-width: 52rem; }
-.disclaimer {
-  background: #fef3c7;
-  border: 1px solid #fcd34d;
+h1 { font-size: 1.75rem; margin: 0 0 0.4rem; font-weight: 700; }
+.sub { color: var(--muted); font-size: 0.95rem; margin: 0; max-width: 48rem; }
+
+.data-window {
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 1rem 1.25rem;
-  margin: 1.25rem 0 1.75rem;
-  font-size: 0.95rem;
-  color: #44403c;
+  padding: 0.85rem 1rem;
+  margin: 1.25rem 0 1.5rem;
+  font-size: 0.9rem;
 }
-.disclaimer p { margin: 0.35rem 0; }
-.disclaimer p:first-child { margin-top: 0; }
-.disclaimer p:last-child { margin-bottom: 0; }
-.change-grid { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin: 1rem 0; background: var(--card); box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-.change-grid th, .change-grid td { border: 1px solid var(--line); padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
-.change-grid th { background: #ecfdf5; font-weight: 600; }
-.change-grid tr:nth-child(even) td { background: #fafaf9; }
-.takeaway-line { font-size: 0.95rem; color: var(--muted); margin: 0.4rem 0 1rem; max-width: 48rem; }
+.data-window strong { color: var(--text); }
+
 h2 {
-  font-size: 1.35rem;
+  font-size: 1.28rem;
   color: var(--accent);
-  margin-top: 2.25rem;
-  margin-bottom: 0.75rem;
+  margin: 2rem 0 0.65rem;
   font-weight: 700;
 }
-h3 { font-size: 1.1rem; margin-top: 1.5rem; color: #44403c; }
+h2:first-of-type { margin-top: 0; }
+h3 {
+  font-size: 1rem;
+  color: #44403c;
+  margin: 1.25rem 0 0.5rem;
+  font-weight: 600;
+}
+
 table.data {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   background: var(--card);
-  box-shadow: 0 1px 3px rgba(0,0,0,.08);
-  margin: 1rem 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  margin: 0.75rem 0 1.25rem;
 }
 table.data th, table.data td {
   border: 1px solid var(--line);
-  padding: 0.55rem 0.65rem;
+  padding: 0.5rem 0.6rem;
   text-align: left;
+  vertical-align: top;
 }
-table.data th { background: #f5f5f4; font-weight: 600; }
-.def {
-  background: #fffbeb;
-  border-left: 4px solid #f59e0b;
-  padding: 1rem 1.25rem;
-  margin: 1rem 0;
-  border-radius: 0 8px 8px 0;
+table.data th {
+  background: #f5f5f4;
+  font-weight: 600;
 }
-.def strong { color: #92400e; }
-.figure { margin: 1.5rem 0; text-align: center; }
-.figure img { max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
-.figure p { font-size: 0.88rem; color: var(--muted); margin-top: 0.5rem; }
-ul.tight li { margin: 0.35rem 0; }
-.takeaway {
-  font-size: 1.05rem;
-  line-height: 1.75;
-  background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+table.data tr:nth-child(even) td { background: #fafaf9; }
+table.data td.num, table.data th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.inline-hint {
+  display: inline-block;
+  margin-left: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.inline-hint.up { color: #047857; }
+.inline-hint.down { color: #b45309; }
+.inline-hint.flat { color: var(--muted); font-weight: 600; }
+
+.insight-aside {
+  font-size: 0.86rem;
+  color: var(--muted);
+  border-left: 3px solid #99f6e4;
+  padding: 0.35rem 0 0.35rem 0.85rem;
+  margin: 0.75rem 0 1.25rem;
+  max-width: 48rem;
+}
+.insight-aside strong { color: var(--text); font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; }
+.insight-aside ul { margin: 0.35rem 0 0; padding-left: 1.1rem; }
+.insight-aside li { margin: 0.25rem 0; }
+
+.insight-foot {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin: 0.35rem 0 1rem;
+  max-width: 48rem;
+}
+
+.chart-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin: 0.75rem 0 1.25rem;
+}
+.chart-box {
+  background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 1.5rem 1.75rem;
-  margin-top: 2rem;
+  border-radius: 8px;
+  padding: 0.65rem;
 }
-footer.note { font-size: 0.85rem; color: var(--muted); margin-top: 2rem; }
+.chart-box canvas {
+  display: block;
+  width: 100%;
+  height: 200px;
+}
+.chart-cap {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 0.35rem 0 0;
+  text-align: center;
+}
+
+.figure { margin: 1.35rem 0; text-align: center; }
+.figure img { max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+.figure p { font-size: 0.82rem; color: var(--muted); margin-top: 0.4rem; }
+
+.section-note {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin: 0 0 0.75rem;
+  max-width: 48rem;
+}
+
+footer.meta-line {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
 </style>
 </head>
 <body>
+
 <div class="wrap">
 <header>
-  <h1>February vs March 2026 — Intake &amp; Call Quality</h1>
-  <p class="sub">March figures are <strong>through March 20, 2026</strong>. February reflects the <strong>export window in file</strong> (starts Feb 2 in this dataset). 
-  March month-end projection scales the first 20 days to 31 days — illustrative only.</p>
+  <h1>Call quality &amp; intake report</h1>
+  <p class="sub">CallRail totals in <code>callrail_report_truth.json</code>. Transcript files support pattern notes only. Update the truth file when CallRail numbers change.</p>
 </header>
 
-<div class="disclaimer">
-  <p>This report was produced with assistance from Cursor AI. Figures and modeled categories may contain errors and should be validated before operational use. February labeling is uneven in places; March is partial-month; projections use simple pacing.</p>
-  <p>Tags and modeled buckets summarize call content; they do not replace a formal intake QA program or a legal determination of a “lead.”</p>
-  <p>Only calls marked “Qualified Lead” carry value-back scoring to Google. That marking reflects operator judgment from listening to recordings — not an independent measure of lead quality. Other calls remain in the default CallRail disposition until explicitly marked.</p>
+<h2>Data Window</h2>
+<div class="data-window" id="data-window-block">
+  <p style="margin:0 0 0.35rem"><strong>Range:</strong> <span id="data-window-range">—</span></p>
+  <p style="margin:0 0 0.35rem"><strong>CallRail raw leads (this period):</strong> <span id="data-window-raw">—</span></p>
+  <p style="margin:0 0 0.35rem"><strong>CallRail qualified leads (this period):</strong> <span id="data-window-qualified">—</span></p>
+  <p style="margin:0 0 0.35rem"><strong>Transcript subset used for call-text patterns:</strong> <span id="data-window-transcript-n">—</span> calls</p>
+  <p style="margin:0"><strong>Count source:</strong> <span id="data-window-provenance">—</span></p>
 </div>
 
-<h2>Definitions</h2>
-<div class="def">
-<p><strong>Qualified Lead (value-back)</strong> — Calls marked in CallRail for Google value-back. In this workflow, value and scoring are applied only there, based on operator judgment from listening to recordings.</p>
-<p><strong>True PI (modeled)</strong> — A coarse category from tags and status for reporting; not equivalent to a retained case or a firm’s intake definition.</p>
-<p><strong>Default disposition (unmarked)</strong> — Calls without a value-back mark; neutral administrative state.</p>
-<p><strong>Silent / abandon / connect (modeled)</strong> — Hang-ups, abandoned rings, silent or dead-air tags, or very short connects — grouped for volume analysis, not as a critique of intake staff.</p>
-</div>
-
-<h2>Snapshot KPIs</h2>
+<h2 id="heading-prior-performance">Prior month performance</h2>
+<p class="section-note">CallRail totals for the prior calendar month, when reconciled. Otherwise left blank on purpose.</p>
 <table class="data">
-<thead><tr><th>Metric</th><th>Feb actual</th><th>Mar through 3/20</th><th>Mar projected (full month)</th><th>Mar vs Feb</th></tr></thead>
-<tbody>
-<tr><td>Total calls (excl. internal tests)</td><td>380</td><td>538</td><td>834</td><td>+41.6% (actual)</td></tr>
-<tr><td>Answered</td><td>367</td><td>516</td><td>800</td><td>—</td></tr>
-<tr><td>Abandoned</td><td>13</td><td>22</td><td>34</td><td>—</td></tr>
-<tr><td>First-time callers (flagged)</td><td>211</td><td>368</td><td>570</td><td>—</td></tr>
-<tr><td>Average duration</td><td>4 min 31 sec</td><td>5 min 15 sec</td><td>—</td><td>—</td></tr>
-<tr><td>Median duration</td><td>2 min 22 sec</td><td>2 min 38 sec</td><td>—</td><td>—</td></tr>
-<tr><td>Calls with tags</td><td>191</td><td>419</td><td>649</td><td>—</td></tr>
-<tr><td>Marked qualified (Google value-back)</td><td>17</td><td>65</td><td>101</td><td>—</td></tr>
-<tr><td>Default disposition (unmarked)</td><td>351</td><td>381</td><td>591</td><td>+8.5% (actual)</td></tr>
-<tr><td>Share marked qualified (value-back)</td><td>4.5%</td><td>12.1%</td><td>12.1%</td><td>+170.1%</td></tr>
-<tr><td>True PI (modeled count)</td><td>30</td><td>63</td><td>98</td><td>+110.0%</td></tr>
-<tr><td>Internal tests (raw)</td><td>0</td><td>5</td><td>—</td><td>—</td></tr>
-</tbody>
-</table>
-<p style="font-size:0.9rem;color:var(--muted)">February export begins <strong>Feb 2</strong> in this file (no Feb 1 rows). March projection assumes March pace stays flat — see projection commentary.</p>
-
-<h2>What changed (February → March)</h2>
-
-<table class="change-grid">
-<thead><tr><th>Area</th><th>February (export)</th><th>March (through 3/20)</th><th>Notes</th></tr></thead>
-<tbody>
-<tr><td>Total calls</td><td>380</td><td>538</td><td>March window is partial; per-day pace is higher.</td></tr>
-<tr><td>Share marked qualified (value-back)</td><td>4.5%</td><td>12.1%</td><td>Qualified marks are applied only where value-back is intended.</td></tr>
-<tr><td>Default disposition (unmarked)</td><td>351</td><td>381</td><td>Calls without a value-back mark; not an intake quality score.</td></tr>
-<tr><td>Google Ads + Meta</td><td>98</td><td>239</td><td>Paid search / paid social.</td></tr>
-<tr><td>Direct + GMB</td><td>134</td><td>188</td><td>Brand-leaning and direct-line sources.</td></tr>
-<tr><td>Modeled: silent / abandon / connect</td><td>40</td><td>61</td><td>Tag-based; directional.</td></tr>
-<tr><td>Modeled: wrong firm / admin / existing</td><td>48</td><td>106</td><td>—</td></tr>
-<tr><td>Modeled: non-PI wrong practice</td><td>13</td><td>90</td><td>—</td></tr>
-<tr><td>Modeled: attorney-switch signals</td><td>5</td><td>8</td><td>—</td></tr>
-<tr><td>Modeled: symptom confusion</td><td>0</td><td>5</td><td>—</td></tr>
-<tr><td>Modeled: unclear / untagged</td><td>178</td><td>106</td><td>—</td></tr>
-</tbody>
+  <thead>
+    <tr><th>Metric</th><th class="num">Value</th></tr>
+  </thead>
+  <tbody id="tbody-perf-prior"></tbody>
 </table>
 
-<p class="takeaway-line"><strong>Reading the table:</strong> Volume and source mix describe demand; value-back share describes how much traffic carries a Google value signal; modeled rows summarize tag language for trend spotting.</p>
+<h2 id="heading-current-performance">Current month performance</h2>
+<p class="section-note">This period’s CallRail raw and qualified counts (source of truth for volume).</p>
+<table class="data">
+  <thead>
+    <tr><th>Metric</th><th class="num">Value</th></tr>
+  </thead>
+  <tbody id="tbody-perf-current"></tbody>
+</table>
 
-<h2>Source mix</h2>
-<p class="takeaway-line">Where the phones rang. Compare shape, not just height — one source can add volume without adding cases.</p>
-<div class="figure"><img src="charts/mom_source_comparison.png" alt="Source comparison"/></div>
+<h2>Month vs Month Change</h2>
+<p class="section-note">Compares this period to the prior period only when prior CallRail totals are on file. Not shown when prior month is not reconciled.</p>
+<table class="data">
+  <thead>
+    <tr>
+      <th>Metric</th>
+      <th class="num" id="th-mom-prior">Prior</th>
+      <th class="num" id="th-mom-current">Current</th>
+      <th class="num">Δ</th>
+      <th class="num">% vs prior</th>
+    </tr>
+  </thead>
+  <tbody id="tbody-mom"></tbody>
+</table>
 
-<h2>Strategic buckets — February vs March</h2>
-<p class="takeaway-line">Same bucket logic both months. Good for direction; not a substitute for listening to calls.</p>
-<div class="figure"><img src="charts/mom_bucket_comparison.png" alt="Buckets"/></div>
-
-<h2>March call intent mix</h2>
-<p class="takeaway-line">Share of March (through 3/20). Labels and percentages appear on the chart (slices under ~2.5% may omit the percentage to reduce clutter).</p>
-<div class="figure"><img src="charts/mom_intent_pie_march.png" alt="Intent pie"/></div>
-
-<h2>Call length by bucket</h2>
-<p class="takeaway-line">Same duration buckets for both months (wider spans than raw seconds so the distribution is easier to read side by side). 
-Median March handle time: <strong>2 min 38 sec</strong> (Typical consult range — enough time to qualify most calls.)</p>
-<div class="figure"><img src="charts/mom_duration_buckets.png" alt="Duration buckets"/></div>
-
-<h2>When calls arrive — March heatmap</h2>
-<p class="takeaway-line">Local time (12-hour labels). Warmer cells indicate higher call counts by weekday and hour.</p>
-<div class="figure"><img src="charts/mom_heatmap_march.png" alt="Heatmap"/></div>
-
-<h2>Source × bucket — March</h2>
-<p class="takeaway-line">Greens = opportunity-style modeled buckets; oranges = non-PI / wrong firm &amp; admin; purples = vendor, silent/abandon/connect, unclear. Legend matches the chart.</p>
-<div class="figure"><img src="charts/mom_source_bucket_stacked.png" alt="Stacked"/></div>
-
-<h2>Projection commentary (March month-end)</h2>
-<ul class="tight">
-<li><strong>Projected March calls (excl. tests):</strong> ~834 if the first 20 days were representative of the full month.</li>
-<li><strong>Caveat:</strong> Pace can land high or low depending on weekends, budget caps, or campaign changes in the final weeks.</li>
-<li><strong>Volume vs. story:</strong> call counts can rise while tag mix and value-back marks tell a separate story.</li>
-</ul>
-
-<h2>Operational context</h2>
-<ul class="tight">
-<li>Connect timing and routing interact with marketing volume; heatmaps help align staffing with observed peaks.</li>
-<li>Complex or non-standard inquiries may benefit from consistent triage scripts as part of normal scaling.</li>
-</ul>
-
-<h2>Practical notes</h2>
-<p class="takeaway-line">These are optional ideas — not a checklist. They’re the kind of things many PI firms look at as volume grows; use what fits.</p>
-<ul class="tight">
-<li><strong>Value-back marking:</strong> Keeping a simple, consistent idea of which calls get a Google value-back mark tends to make month-to-month reporting easier to read.</li>
-<li><strong>First few seconds:</strong> A short, steady opening (who the firm is, what they handle, where) usually helps callers get oriented.</li>
-<li><strong>Busy hours:</strong> The heatmap is a rough guide — if staffing lines up with the peaks, fewer calls hit voicemail or hold.</li>
-<li><strong>Vendor / admin traffic:</strong> When that volume is noticeable, a separate path or number for it can keep case lines open for injury calls.</li>
-<li><strong>Paid search:</strong> Glancing at search terms and negatives every so often is often enough to catch drift before spend does.</li>
-<li><strong>Sanity checks:</strong> Occasionally comparing marked-qualified counts to what actually signed in the firm can help calibrate — no pressure to do it every week.</li>
-</ul>
-
-<div class="takeaway">
-<h2 style="margin-top:0;border:none;">Summary</h2>
-<p>The comparison is intended as a neutral snapshot: volume and source mix, selective value-back marking, and a coarse tag-based view of call themes. 
-March shows higher daily pace than the February export window; the appropriate response is firm-specific. 
-Operational improvements (routing, coverage, triage consistency) often scale alongside media spend.</p>
-<p style="margin-bottom:0;font-size:0.95rem;"><strong>Reminder:</strong> See the disclaimer box — AI-assisted, contextual tags, partial March, February export starts Feb 2; local time on heatmap; internal tests excluded from main KPI rows.</p>
+<div class="insight-aside">
+  <strong>What changed vs last month</strong>
+  <ul id="insight-changed"></ul>
 </div>
 
-<footer class="note">
-Source files: Call List-2026-03-20 (2) (1).xlsx (February window) · Call List-2026-03-20 (1).xlsx (March through 3/20).
-</footer>
+<h2>Source Breakdown</h2>
+<p class="section-note">Where calls came from: CallRail raw and qualified counts for this period. “What we heard” is from transcript review of the subset only—not CallRail.</p>
+<table class="data">
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th class="num" id="th-src-prior-raw">Prior raw</th>
+      <th class="num" id="th-src-prior-qual">Prior qualified</th>
+      <th class="num" id="th-src-cur-raw">Current raw</th>
+      <th class="num" id="th-src-cur-qual">Current qualified</th>
+      <th class="num">Qualified share (this period)</th>
+      <th class="num" id="th-src-pct">% vs prior raw</th>
+      <th>What we heard in calls</th>
+    </tr>
+  </thead>
+  <tbody id="tbody-source"></tbody>
+</table>
+
+<h2>Call quality breakdown</h2>
+<p class="section-note">Transcript-informed categories for the transcript subset only—not CallRail dispositions. Prior column fills in only when a comparable prior subset exists.</p>
+<table class="data">
+  <thead>
+    <tr>
+      <th>Call type</th>
+      <th class="num" id="th-type-prior">Prior</th>
+      <th class="num" id="th-type-current">Current</th>
+      <th class="num">% vs prior</th>
+    </tr>
+  </thead>
+  <tbody id="tbody-quality"></tbody>
+</table>
+
+<div class="insight-aside">
+  <strong>Key patterns in recent calls</strong>
+  <ul id="insight-patterns"></ul>
 </div>
+
+<h2>Potential missed opportunities</h2>
+<p class="insight-foot" id="insight-missed">—</p>
+
+<h2>Volume funnel (current month)</h2>
+<p class="section-note">Transcript subset only: share of scored calls by coarse transcript labels (not CallRail qualified counts).</p>
+<div class="chart-row" style="grid-template-columns: 1fr;">
+  <div class="chart-box"><canvas id="chart-funnel" width="600" height="200"></canvas><p class="chart-cap">Transcript subset — volume shape</p></div>
+</div>
+
+<h2>Duration distribution (current month)</h2>
+<p class="section-note">Transcript subset only: recorded call length in seconds where available.</p>
+<div class="chart-row" style="grid-template-columns: 1fr;">
+  <div class="chart-box"><canvas id="chart-duration-hist" width="600" height="200"></canvas><p class="chart-cap">Duration (seconds)</p></div>
+</div>
+
+<h2>Performance trends</h2>
+<p class="section-note">Month-by-month lines need reliable call timestamps on transcripts. Otherwise charts stay hidden.</p>
+<div class="chart-row" id="trends-placeholder-wrap" style="display: none;">
+  <div class="chart-box" style="grid-column: 1 / -1;">
+    <p class="section-note" style="margin: 0.5rem 0;">Monthly trend charts are hidden until timestamp-complete transcript data is available. CallRail totals in this report stay the source of truth for volume.</p>
+  </div>
+</div>
+<div class="chart-row" id="trends-charts-wrap">
+  <div class="chart-box"><canvas id="chart-opp-rate" width="400" height="200"></canvas><p class="chart-cap">Qualified share by month (needs dates)</p></div>
+  <div class="chart-box"><canvas id="chart-duration-trend" width="400" height="200"></canvas><p class="chart-cap">Median duration by month (needs dates)</p></div>
+  <div class="chart-box"><canvas id="chart-source-mix" width="400" height="200"></canvas><p class="chart-cap">Volume by source bucket (needs dates)</p></div>
+</div>
+
+<h2>Reference charts</h2>
+<p class="section-note">Export-based reference visuals from earlier pipeline runs. They may not match the exact date range above; use for shape and history, not as the live CallRail total.</p>
+<div class="figure"><p><strong>Source mix</strong></p><img src="charts/mom_source_comparison.png" alt="Source comparison" onerror="this.closest('.figure').style.display='none'"/></div>
+<div class="figure"><p><strong>Strategic buckets — month vs month</strong></p><img src="charts/mom_bucket_comparison.png" alt="Buckets" onerror="this.closest('.figure').style.display='none'"/></div>
+<div class="figure"><p><strong>Call intent mix (recent month in export)</strong></p><img src="charts/mom_intent_pie_march.png" alt="Intent pie" onerror="this.closest('.figure').style.display='none'"/></div>
+<div class="figure"><p><strong>Call length by bucket</strong></p><img src="charts/mom_duration_buckets.png" alt="Duration buckets" onerror="this.closest('.figure').style.display='none'"/></div>
+<div class="figure"><p><strong>When calls arrive — heatmap</strong></p><img src="charts/mom_heatmap_march.png" alt="Heatmap" onerror="this.closest('.figure').style.display='none'"/></div>
+<div class="figure"><p><strong>Source × bucket (stacked)</strong></p><img src="charts/mom_source_bucket_stacked.png" alt="Stacked source" onerror="this.closest('.figure').style.display='none'"/></div>
+<div class="figure"><p><strong>Funnel (export)</strong></p><img src="charts/funnel.png" alt="Funnel" onerror="this.closest('.figure').style.display='none'"/></div>
+<div class="figure"><p><strong>Duration histogram (export)</strong></p><img src="charts/duration_histogram.png" alt="Histogram" onerror="this.closest('.figure').style.display='none'"/></div>
+
+<footer class="meta-line">CallRail totals: truth file. Transcript sections: pattern support only. Validate before operational use.</footer>
+</div>
+
+<script src="js/dashboard-intel.js" defer></script>
 </body>
 </html>

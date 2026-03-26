@@ -1,0 +1,30 @@
+{
+  "name": "call-rail-report-3-20",
+  "version": "1.0.0",
+  "description": "**Live site:** static files at repo root — `index.html` + `charts/` (no raw call logs in git).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "score:calls": "node score_callrail_pipeline.js",
+    "intel:build": "node callrail_mom_pipeline.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shoutgeorge1/callrail-march-20-2026.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/shoutgeorge1/callrail-march-20-2026/issues"
+  },
+  "homepage": "https://github.com/shoutgeorge1/callrail-march-20-2026#readme",
+  "dependencies": {
+    "axios": "^1.13.6",
+    "csv-writer": "^1.6.0",
+    "dotenv": "^17.3.1",
+    "fs": "^0.0.1-security",
+    "openai": "^6.32.0"
+  }
+}

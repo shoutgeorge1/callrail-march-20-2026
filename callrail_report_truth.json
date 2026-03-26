@@ -1,0 +1,47 @@
+{
+  "current_period": {
+    "label": "March 2026 (through Mar 25)",
+    "range_display": "Mar 1, 2026 – Mar 25, 2026"
+  },
+  "prior_period": null,
+  "callrail": {
+    "current": { "raw_leads": 460.5, "qualified_leads": 67 },
+    "prior": null
+  },
+  "sources": [
+    {
+      "name": "Google Ads",
+      "raw": 236.5,
+      "qualified": 32.5,
+      "heard": "More urgent injury language, but also property-damage-only confusion."
+    },
+    {
+      "name": "Direct",
+      "raw": 116.5,
+      "qualified": 18.5,
+      "heard": "More existing-client and admin-style traffic."
+    },
+    {
+      "name": "GMB (+ Multi Use Tracking Number)",
+      "raw": 50,
+      "qualified": 11,
+      "heard": "Stronger injury clarity in many calls."
+    },
+    { "name": "Yelp", "raw": 15, "qualified": 2, "heard": "—" },
+    { "name": "Facebook", "raw": 11, "qualified": 0, "heard": "—" },
+    { "name": "Google Organic", "raw": 7.5, "qualified": 1, "heard": "—" },
+    { "name": "Legacy Phone Number", "raw": 7, "qualified": 0, "heard": "—" },
+    {
+      "name": "Landing: 844-Inside-5",
+      "raw": 6,
+      "qualified": 2,
+      "heard": "Mix of campaign traffic; listen for match to ad intent."
+    },
+    { "name": "Google My Business", "raw": 3, "qualified": 0, "heard": "—" },
+    { "name": "APEX CHAT (CTL)", "raw": 2, "qualified": 0, "heard": "—" },
+    { "name": "Bing Organic", "raw": 2, "qualified": 0, "heard": "—" },
+    { "name": "Super Lawyers - Los Angeles", "raw": 2, "qualified": 0, "heard": "—" },
+    { "name": "Instagram", "raw": 1, "qualified": 0, "heard": "—" },
+    { "name": "www.insideraccidentlawyers.com", "raw": 1, "qualified": 0, "heard": "—" }
+  ]
+}

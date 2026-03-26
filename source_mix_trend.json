@@ -1,0 +1,32 @@
+[
+  {
+    "month": "2026-01",
+    "total": 119,
+    "google_ads": 49,
+    "gmb": 12,
+    "direct": 37,
+    "chat": 2,
+    "referral": 0,
+    "unknown": 19
+  },
+  {
+    "month": "2026-02",
+    "total": 455,
+    "google_ads": 191,
+    "gmb": 52,
+    "direct": 93,
+    "chat": 5,
+    "referral": 0,
+    "unknown": 114
+  },
+  {
+    "month": "2026-03",
+    "total": 403,
+    "google_ads": 85,
+    "gmb": 83,
+    "direct": 19,
+    "chat": 1,
+    "referral": 0,
+    "unknown": 215
+  }
+]
