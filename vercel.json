@@ -2,5 +2,9 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "",
   "installCommand": "",
-  "framework": null
+  "framework": null,
+  "rewrites": [
+    { "source": "/signal", "destination": "/report-weekly-signal.html" },
+    { "source": "/weekly-signal", "destination": "/report-weekly-signal.html" }
+  ]
 }

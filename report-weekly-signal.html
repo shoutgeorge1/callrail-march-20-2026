@@ -76,6 +76,8 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
   <div class="serve-box" id="serve-box">
     Open over <strong>http://</strong>. Run <code>npm run serve</code> then
     <a href="http://localhost:8765/report-weekly-signal.html">http://localhost:8765/report-weekly-signal.html</a>
+    <br/>Public copy:
+    <a href="https://callrail-march-20-2026.vercel.app/signal">https://callrail-march-20-2026.vercel.app/signal</a>
   </div>
   <header>
     <h1>Monthly Case Signal Report</h1>
@@ -160,6 +162,7 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
 (function () {
   var FEB = "2026-02";
   var MAR = "2026-03";
+  var LIVE_SIGNAL_URL = "https://callrail-march-20-2026.vercel.app/signal";
 
   /** March window + rich transcripts (overwrites same call_id from month files). */
   var CALLS_LAST60_URLS = [
@@ -609,13 +612,21 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
       err.style.display = "block";
       err.innerHTML =
         msgs.join("<br>") +
-        '<br><a href="http://localhost:8765/report-weekly-signal.html">http://localhost:8765/report-weekly-signal.html</a> (after <code>npm run serve</code>)';
+        '<br><a href="http://localhost:8765/report-weekly-signal.html">http://localhost:8765/report-weekly-signal.html</a> (after <code>npm run serve</code>)' +
+        '<br/>Or open the live copy: <a href="' +
+        LIVE_SIGNAL_URL +
+        '">' +
+        LIVE_SIGNAL_URL +
+        "</a>";
     }
   }).catch(function () {
     el("load-err").style.display = "block";
     el("load-err").innerHTML =
       "Failed to load data. Use <code>npm run serve</code> then " +
-      '<a href="http://localhost:8765/report-weekly-signal.html">http://localhost:8765/report-weekly-signal.html</a>';
+      '<a href="http://localhost:8765/report-weekly-signal.html">http://localhost:8765/report-weekly-signal.html</a>' +
+        ' · <a href="' +
+        LIVE_SIGNAL_URL +
+        '">live</a>';
   });
 })();
 </script>
