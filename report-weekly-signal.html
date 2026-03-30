@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Monthly Case Signal Report</title>
+<style>
+:root {
+  --text: #1c1917;
+  --muted: #57534e;
+  --line: #e7e5e4;
+  --accent: #0f766e;
+  --bg: #fafaf9;
+  --card: #ffffff;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.5;
+  margin: 0;
+  padding: 0 0 2rem;
+}
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 1.25rem; }
+header {
+  padding: 1.5rem 0 0.75rem;
+  border-bottom: 4px solid var(--accent);
+}
+h1 { font-size: 1.65rem; margin: 0 0 0.35rem; font-weight: 700; }
+.meta { font-size: 0.82rem; color: var(--muted); margin: 0 0 0.5rem; }
+h2 {
+  font-size: 1.15rem;
+  color: var(--accent);
+  margin: 1.75rem 0 0.5rem;
+  font-weight: 700;
+}
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  background: var(--card);
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  margin: 0.5rem 0 1rem;
+}
+table.data th, table.data td {
+  border: 1px solid var(--line);
+  padding: 0.45rem 0.55rem;
+  text-align: left;
+}
+table.data th { background: #f5f5f4; font-weight: 600; }
+table.data tr:nth-child(even) td { background: #fafaf9; }
+table.data td.num, table.data th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.data tfoot td {
+  font-weight: 700;
+  background: #e7e5e4;
+  border-top: 2px solid var(--line);
+}
+table.data tfoot td.num { font-variant-numeric: tabular-nums; }
+.err { color: #b45309; font-size: 0.88rem; margin: 0.5rem 0; }
+.serve-box {
+  display: none;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin: 0 0 1rem;
+  font-size: 0.88rem;
+}
+.serve-box code { font-size: 0.85em; }
+.serve-box a { color: #0f766e; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="serve-box" id="serve-box">
+    Open over <strong>http://</strong>. Run <code>npm run serve</code> then
+    <a href="http://localhost:8765/report-weekly-signal.html">http://localhost:8765/report-weekly-signal.html</a>
+  </div>
+  <header>
+    <h1>Monthly Case Signal Report</h1>
+    <p class="meta" id="meta-range"></p>
+  </header>
+
+  <h2>Totals (CallRail check)</h2>
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th class="num">Feb</th>
+        <th class="num">March</th>
+        <th class="num">Δ</th>
+        <th class="num">% vs Feb</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-rollups"></tbody>
+  </table>
+
+  <h2>Calls by Source (Feb vs March)</h2>
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Source</th>
+        <th class="num">Feb Calls</th>
+        <th class="num">March Calls</th>
+        <th class="num">Change</th>
+        <th class="num">% vs Feb</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-calls-source"></tbody>
+    <tfoot id="foot-calls-source"></tfoot>
+  </table>
+
+  <h2>Strong Calls by Source (Feb vs March)</h2>
+  <p class="meta" id="def-strong">
+    <strong>Strong</strong> = a call that meets <em>either</em> condition: (1) CallRail
+    <code>duration</code> is at least 120 seconds, or (2) the call is in the enriched cases file
+    with <code>match_confidence</code> of <code>HIGH</code> (same <code>call_id</code>).
+  </p>
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Source</th>
+        <th class="num">Feb Strong</th>
+        <th class="num">March Strong</th>
+        <th class="num">Change</th>
+        <th class="num">% vs Feb</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-strong-source"></tbody>
+    <tfoot id="foot-strong-source"></tfoot>
+  </table>
+
+  <h2>Verified Case Signal (Feb vs March)</h2>
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Source</th>
+        <th class="num">Feb Cases</th>
+        <th class="num">March Cases</th>
+        <th class="num">Change</th>
+        <th class="num">% vs Feb</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-verified-source"></tbody>
+    <tfoot id="foot-verified-source"></tfoot>
+  </table>
+
+  <h2>Total Cases (Feb vs March)</h2>
+  <table class="data">
+    <thead><tr><th>Month</th><th class="num">Cases</th></tr></thead>
+    <tbody id="tbody-month-totals"></tbody>
+    <tfoot id="foot-month-totals"></tfoot>
+  </table>
+
+  <p class="err" id="load-err" style="display:none;"></p>
+</div>
+
+<script>
+(function () {
+  var FEB = "2026-02";
+  var MAR = "2026-03";
+
+  /** March window + rich transcripts (overwrites same call_id from month files). */
+  var CALLS_LAST60_URLS = [
+    "data/callrail_transcripts_last60days.json",
+    "callrail_transcripts_last60days.json",
+  ];
+  var FEB_SCORED_URLS = [
+    "callrail_scored_calls_2026_02.json",
+    "data/callrail_scored_calls_2026_02.json",
+  ];
+  var MAR_SCORED_URLS = [
+    "callrail_scored_calls_2026_03.json",
+    "data/callrail_scored_calls_2026_03.json",
+  ];
+  var CASES_URL = "data/callrail_cases_enriched.json";
+  var COUNTS_URL = "data/case_counts.json";
+
+  if (location.protocol === "file:") {
+    var sb = document.getElementById("serve-box");
+    if (sb) sb.style.display = "block";
+  }
+
+  function el(id) { return document.getElementById(id); }
+
+  function preferredTs(c) {
+    var a = c.call_start_time, b = c.start_time, x = c.created_at;
+    if (a != null && String(a).trim()) return String(a).trim();
+    if (b != null && String(b).trim()) return String(b).trim();
+    if (x != null && String(x).trim()) return String(x).trim();
+    return null;
+  }
+
+  function callMs(c) {
+    var t = preferredTs(c);
+    if (!t) return null;
+    var ms = Date.parse(t);
+    return Number.isFinite(ms) ? ms : null;
+  }
+
+  function monthKeyFromMs(ms) {
+    var d = new Date(ms);
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    return y + "-" + m;
+  }
+
+  function monthBucket(ms) {
+    var k = monthKeyFromMs(ms);
+    if (k === FEB) return "feb";
+    if (k === MAR) return "mar";
+    return null;
+  }
+
+  function srcKey(c) {
+    var s = c.source;
+    return s && String(s).trim() ? String(s).trim() : "(no source)";
+  }
+
+  function durationSec(c) {
+    var n = Number(c.duration);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function bump(map, source, bucket) {
+    if (!map[source]) map[source] = { feb: 0, mar: 0 };
+    map[source][bucket]++;
+  }
+
+  function emptyRow(tbody, colspan, msg) {
+    tbody.innerHTML = "";
+    var r = document.createElement("tr");
+    var d = document.createElement("td");
+    d.colSpan = colspan;
+    d.textContent = msg;
+    r.appendChild(d);
+    tbody.appendChild(r);
+  }
+
+  function sumFebMarMap(map) {
+    var sumF = 0;
+    var sumM = 0;
+    var keys = Object.keys(map);
+    for (var s = 0; s < keys.length; s++) {
+      sumF += map[keys[s]].feb;
+      sumM += map[keys[s]].mar;
+    }
+    return { feb: sumF, mar: sumM, delta: sumM - sumF };
+  }
+
+  /** Percent change March vs February; "new" if Feb was 0 and March > 0. */
+  function pctVsFeb(feb, mar) {
+    var f = Number(feb);
+    var m = Number(mar);
+    if (!Number.isFinite(f) || !Number.isFinite(m)) return "—";
+    if (f === 0) return m === 0 ? "—" : "new";
+    var p = ((m - f) / f) * 100;
+    var rounded = Math.round(p * 10) / 10;
+    var s =
+      Math.abs(rounded - Math.round(rounded)) < 1e-9
+        ? String(Math.round(rounded))
+        : rounded.toFixed(1);
+    return (p > 0 ? "+" : "") + s + "%";
+  }
+
+  function renderFebMarFooter(tfoot, map) {
+    if (!tfoot) return;
+    tfoot.innerHTML = "";
+    var sums = sumFebMarMap(map);
+    var tr = document.createElement("tr");
+    var td0 = document.createElement("td");
+    td0.textContent = "Total";
+    var td1 = document.createElement("td");
+    td1.className = "num";
+    td1.textContent = String(sums.feb);
+    var td2 = document.createElement("td");
+    td2.className = "num";
+    td2.textContent = String(sums.mar);
+    var td3 = document.createElement("td");
+    td3.className = "num";
+    td3.textContent = String(sums.delta);
+    var td4 = document.createElement("td");
+    td4.className = "num";
+    td4.textContent = pctVsFeb(sums.feb, sums.mar);
+    tr.appendChild(td0);
+    tr.appendChild(td1);
+    tr.appendChild(td2);
+    tr.appendChild(td3);
+    tr.appendChild(td4);
+    tfoot.appendChild(tr);
+  }
+
+  function renderFebMarTable(tbody, tfoot, map) {
+    tbody.innerHTML = "";
+    var keys = Object.keys(map);
+    if (!keys.length) {
+      emptyRow(tbody, 5, "—");
+      renderFebMarFooter(tfoot, {});
+      return;
+    }
+    keys.sort(function (a, b) {
+      return map[b].mar - map[a].mar;
+    });
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      var row = map[k];
+      var ch = row.mar - row.feb;
+      var tr = document.createElement("tr");
+      var td0 = document.createElement("td");
+      td0.textContent = k;
+      var td1 = document.createElement("td");
+      td1.className = "num";
+      td1.textContent = String(row.feb);
+      var td2 = document.createElement("td");
+      td2.className = "num";
+      td2.textContent = String(row.mar);
+      var td3 = document.createElement("td");
+      td3.className = "num";
+      td3.textContent = String(ch);
+      var td4 = document.createElement("td");
+      td4.className = "num";
+      td4.textContent = pctVsFeb(row.feb, row.mar);
+      tr.appendChild(td0);
+      tr.appendChild(td1);
+      tr.appendChild(td2);
+      tr.appendChild(td3);
+      tr.appendChild(td4);
+      tbody.appendChild(tr);
+    }
+    renderFebMarFooter(tfoot, map);
+  }
+
+  function renderRollupTable(tbody, callsSum, strongSum, verifiedSum) {
+    tbody.innerHTML = "";
+    var rows = [
+      { label: "All calls", o: callsSum },
+      { label: "Strong calls (≥120s or HIGH match)", o: strongSum },
+      { label: "Verified signed (HIGH only)", o: verifiedSum },
+    ];
+    for (var r = 0; r < rows.length; r++) {
+      var tr = document.createElement("tr");
+      var td0 = document.createElement("td");
+      td0.textContent = rows[r].label;
+      var o = rows[r].o;
+      var td1 = document.createElement("td");
+      td1.className = "num";
+      td1.textContent = String(o.feb);
+      var td2 = document.createElement("td");
+      td2.className = "num";
+      td2.textContent = String(o.mar);
+      var td3 = document.createElement("td");
+      td3.className = "num";
+      td3.textContent = String(o.delta);
+      var td4 = document.createElement("td");
+      td4.className = "num";
+      td4.textContent = pctVsFeb(o.feb, o.mar);
+      tr.appendChild(td0);
+      tr.appendChild(td1);
+      tr.appendChild(td2);
+      tr.appendChild(td3);
+      tr.appendChild(td4);
+      tbody.appendChild(tr);
+    }
+  }
+
+  function fetchJson(url) {
+    return fetch(url).then(function (res) {
+      if (!res.ok) throw new Error(url + " " + res.status);
+      return res.json();
+    });
+  }
+
+  function fetchFirstOk(urls) {
+    function at(idx) {
+      if (idx >= urls.length) return Promise.resolve(null);
+      return fetchJson(urls[idx]).catch(function () {
+        return at(idx + 1);
+      });
+    }
+    return at(0);
+  }
+
+  function asArray(x) {
+    return Array.isArray(x) ? x : [];
+  }
+
+  /** Later lists win on same call_id (last60 overwrites month exports). */
+  function mergeCallsById(lists) {
+    var m = new Map();
+    for (var L = 0; L < lists.length; L++) {
+      var arr = lists[L];
+      if (!arr) continue;
+      for (var i = 0; i < arr.length; i++) {
+        var c = arr[i];
+        if (!c || typeof c !== "object" || !c.call_id) continue;
+        m.set(c.call_id, c);
+      }
+    }
+    return Array.from(m.values());
+  }
+
+  function monthTotalsFromWeeks(weeks) {
+    var feb = 0;
+    var mar = 0;
+    if (!weeks || !weeks.length) return { feb: feb, mar: mar };
+    for (var i = 0; i < weeks.length; i++) {
+      var w = weeks[i];
+      var key = w.week != null ? w.week : w.label;
+      if (key == null) continue;
+      var ms = Date.parse(key);
+      if (!Number.isFinite(ms)) continue;
+      var b = monthBucket(ms);
+      var c = Number(w.cases);
+      if (!Number.isFinite(c)) c = 0;
+      if (b === "feb") feb += c;
+      if (b === "mar") mar += c;
+    }
+    return { feb: feb, mar: mar };
+  }
+
+  Promise.all([
+    fetchFirstOk(FEB_SCORED_URLS).catch(function () { return null; }),
+    fetchFirstOk(MAR_SCORED_URLS).catch(function () { return null; }),
+    fetchFirstOk(CALLS_LAST60_URLS).catch(function () { return null; }),
+    fetchJson(CASES_URL).catch(function () { return null; }),
+    fetchJson(COUNTS_URL).catch(function () { return null; }),
+  ]).then(function (results) {
+    var febFile = results[0];
+    var marFile = results[1];
+    var last60 = results[2];
+    var casesDoc = results[3];
+    var countsDoc = results[4];
+
+    var callsRaw = mergeCallsById([
+      asArray(febFile),
+      asArray(marFile),
+      asArray(last60),
+    ]);
+
+    var err = el("load-err");
+    var msgs = [];
+    if (!asArray(febFile).length) {
+      msgs.push("No February calls file (expected callrail_scored_calls_2026_02.json).");
+    }
+    if (!asArray(marFile).length && !asArray(last60).length) {
+      msgs.push(
+        "No March calls (expected callrail_scored_calls_2026_03.json and/or callrail_transcripts_last60days.json)."
+      );
+    }
+    if (!callsRaw.length) {
+      msgs.push("No call records after merge. Run npm run serve from the project folder.");
+    }
+
+    el("meta-range").textContent =
+      "Calls: Feb ← scored 2026-02 · Mar ← scored 2026-03 + last-60d (deduped by call_id). " +
+      "Table footers and “Totals (CallRail check)” sum rows — compare those to CallRail for the same months.";
+    if (!casesDoc || !Array.isArray(casesDoc.calls)) msgs.push("Missing " + CASES_URL);
+
+    var enrichedById = {};
+    if (casesDoc && casesDoc.calls) {
+      for (var e = 0; e < casesDoc.calls.length; e++) {
+        var er = casesDoc.calls[e];
+        if (!er || !er.call_id) continue;
+        enrichedById[er.call_id] = er;
+      }
+    }
+
+    var callsBySource = {};
+    var strongBySource = {};
+    if (callsRaw) {
+      for (var i = 0; i < callsRaw.length; i++) {
+        var call = callsRaw[i];
+        if (!call || typeof call !== "object") continue;
+        var t = callMs(call);
+        if (t == null) continue;
+        var bucket = monthBucket(t);
+        if (!bucket) continue;
+        var sk = srcKey(call);
+        bump(callsBySource, sk, bucket);
+        var en = enrichedById[call.call_id];
+        var high = en && en.match_confidence === "HIGH";
+        var longCall = durationSec(call) >= 120;
+        if (longCall || high) bump(strongBySource, sk, bucket);
+      }
+    }
+
+    var callsSum = sumFebMarMap(callsBySource);
+
+    renderFebMarTable(
+      el("tbody-calls-source"),
+      el("foot-calls-source"),
+      callsBySource
+    );
+    renderFebMarTable(
+      el("tbody-strong-source"),
+      el("foot-strong-source"),
+      strongBySource
+    );
+
+    var verifiedBySource = {};
+    if (casesDoc && casesDoc.calls) {
+      for (var v = 0; v < casesDoc.calls.length; v++) {
+        var ec = casesDoc.calls[v];
+        if (!ec || ec.case_signed !== true) continue;
+        if (ec.match_confidence !== "HIGH") continue;
+        var tv = callMs(ec);
+        if (tv == null) continue;
+        var vb = monthBucket(tv);
+        if (!vb) continue;
+        bump(verifiedBySource, srcKey(ec), vb);
+      }
+    }
+    var verifiedSum = sumFebMarMap(verifiedBySource);
+    renderFebMarTable(
+      el("tbody-verified-source"),
+      el("foot-verified-source"),
+      verifiedBySource
+    );
+
+    renderRollupTable(
+      el("tbody-rollups"),
+      callsSum,
+      sumFebMarMap(strongBySource),
+      verifiedSum
+    );
+
+    var mtbody = el("tbody-month-totals");
+    var mfoot = el("foot-month-totals");
+    mtbody.innerHTML = "";
+    mfoot.innerHTML = "";
+    var monthFebN = null;
+    var monthMarN = null;
+    if (countsDoc && Array.isArray(countsDoc.months) && countsDoc.months.length) {
+      var byM = {};
+      for (var m = 0; m < countsDoc.months.length; m++) {
+        var mo = countsDoc.months[m];
+        var mk = mo.month != null ? String(mo.month) : "";
+        if (mk !== FEB && mk !== MAR) continue;
+        byM[mk] = {
+          label: mo.label || mk,
+          cases: mo.cases != null ? mo.cases : "—",
+        };
+        var pn = Number(mo.cases);
+        if (Number.isFinite(pn)) {
+          if (mk === FEB) monthFebN = pn;
+          if (mk === MAR) monthMarN = pn;
+        }
+      }
+      var order = [FEB, MAR];
+      var any = false;
+      for (var o = 0; o < order.length; o++) {
+        var key = order[o];
+        if (!byM[key]) continue;
+        any = true;
+        var trm = document.createElement("tr");
+        var tdl = document.createElement("td");
+        tdl.textContent = byM[key].label;
+        var tdc = document.createElement("td");
+        tdc.className = "num";
+        tdc.textContent = String(byM[key].cases);
+        trm.appendChild(tdl);
+        trm.appendChild(tdc);
+        mtbody.appendChild(trm);
+      }
+      if (!any) emptyRow(mtbody, 2, "—");
+    } else if (countsDoc && Array.isArray(countsDoc.weeks)) {
+      var agg = monthTotalsFromWeeks(countsDoc.weeks);
+      monthFebN = agg.feb;
+      monthMarN = agg.mar;
+      var rows = [
+        { label: "February 2026", val: agg.feb },
+        { label: "March 2026", val: agg.mar },
+      ];
+      for (var r = 0; r < rows.length; r++) {
+        var trw = document.createElement("tr");
+        var tdA = document.createElement("td");
+        tdA.textContent = rows[r].label;
+        var tdB = document.createElement("td");
+        tdB.className = "num";
+        tdB.textContent = String(rows[r].val);
+        trw.appendChild(tdA);
+        trw.appendChild(tdB);
+        mtbody.appendChild(trw);
+      }
+    } else {
+      emptyRow(mtbody, 2, "—");
+    }
+
+    if (mfoot) {
+      var trF = document.createElement("tr");
+      var tdL = document.createElement("td");
+      tdL.textContent = "Combined (Feb + March)";
+      var tdR = document.createElement("td");
+      tdR.className = "num";
+      if (monthFebN != null && monthMarN != null) {
+        tdR.textContent = String(monthFebN + monthMarN);
+      } else if (monthFebN != null || monthMarN != null) {
+        tdR.textContent = String((monthFebN || 0) + (monthMarN || 0));
+      } else {
+        tdR.textContent = "—";
+      }
+      trF.appendChild(tdL);
+      trF.appendChild(tdR);
+      mfoot.appendChild(trF);
+    }
+
+    if (msgs.length) {
+      err.style.display = "block";
+      err.innerHTML =
+        msgs.join("<br>") +
+        '<br><a href="http://localhost:8765/report-weekly-signal.html">http://localhost:8765/report-weekly-signal.html</a> (after <code>npm run serve</code>)';
+    }
+  }).catch(function () {
+    el("load-err").style.display = "block";
+    el("load-err").innerHTML =
+      "Failed to load data. Use <code>npm run serve</code> then " +
+      '<a href="http://localhost:8765/report-weekly-signal.html">http://localhost:8765/report-weekly-signal.html</a>';
+  });
+})();
+</script>
+</body>
+</html>

@@ -5,8 +5,15 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "ingest": "node callrail_transcript_ingest.js",
     "score:calls": "node score_callrail_pipeline.js",
-    "intel:build": "node callrail_mom_pipeline.js"
+    "intel:build": "node callrail_mom_pipeline.js",
+    "enrich:leads": "node enrich_callrail_leaddocket.js && node build-case-driver-snapshot.js",
+    "report:signed": "node signed_validation_export.js",
+    "report:case-driver": "node build-case-driver-snapshot.js",
+    "enrich:signed-cases": "node enrich_callrail_signed_cases.js",
+    "rebuild:data": "node callrail_transcript_ingest.js",
+    "serve": "python -m http.server 8765"
   },
   "repository": {
     "type": "git",
@@ -19,12 +26,13 @@
   "bugs": {
     "url": "https://github.com/shoutgeorge1/callrail-march-20-2026/issues"
   },
-  "homepage": "https://github.com/shoutgeorge1/callrail-march-20-2026#readme",
+  "homepage": "https://shoutgeorge1.github.io/callrail-march-20-2026/",
   "dependencies": {
     "axios": "^1.13.6",
     "csv-writer": "^1.6.0",
     "dotenv": "^17.3.1",
     "fs": "^0.0.1-security",
-    "openai": "^6.32.0"
+    "openai": "^6.32.0",
+    "xlsx": "^0.18.5"
   }
 }

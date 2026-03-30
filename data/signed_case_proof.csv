@@ -1,0 +1,2 @@
+call_id,customer_phone_number,call_start_time,source,duration,match_type,match_delta_minutes,lead_status,case_type,marketing_source
+CAL019d4022510970e4b33b097fae3558ab,+13239825028,2026-03-30T12:04:43.856-07:00,Direct,1850,strict,3.27,signed up,Med Spa,IAL Paid Marketing PPC (English)
