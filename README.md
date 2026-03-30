@@ -1,6 +1,12 @@
 # Call intake performance report
 
-**Live site:** static files at repo root — `index.html` + `charts/` (no raw call logs in git).
+| | Link |
+| --- | --- |
+| **Repo** | [github.com/shoutgeorge1/callrail-march-20-2026](https://github.com/shoutgeorge1/callrail-march-20-2026) |
+| **Live (Vercel)** | [callrail-march-20-2026.vercel.app](https://callrail-march-20-2026.vercel.app/) |
+| **Feb vs March signal** | […/report-weekly-signal.html](https://callrail-march-20-2026.vercel.app/report-weekly-signal.html) |
+
+Static files live at the repo root — `index.html` + `charts/` (no raw call logs in git).
 
 ## Vercel + GitHub
 
