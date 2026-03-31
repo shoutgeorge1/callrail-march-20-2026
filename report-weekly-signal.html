@@ -192,8 +192,8 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     <br/>Use this to manually verify attribution accuracy.
   </p>
   <p class="meta">
-    All matched signed cases are shown first so you can spot-check the logic quickly.
-    A smaller unmatched sample is included at the bottom for QA.
+    All signed cases for February and March are shown below.
+    Matched cases appear first, followed by unmatched cases so leadership can see exactly what was and was not attributed.
   </p>
   <table class="data">
     <thead>
@@ -215,9 +215,7 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
   </table>
 
   <h2>Attribution Takeaways (Directional)</h2>
-  <p class="meta" id="takeaway-attribution-1"></p>
-  <p class="meta" id="takeaway-attribution-2"></p>
-  <p class="meta" id="takeaway-attribution-3"></p>
+  <ul id="takeaway-attribution-list"></ul>
 
   <p class="err" id="load-err" style="display:none;"></p>
 </div>
@@ -610,13 +608,13 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
       var ra = caseConfidenceRank(a.match_confidence);
       var rb = caseConfidenceRank(b.match_confidence);
       if (ra !== rb) return ra - rb;
-      return String(a.signed_date).localeCompare(String(b.signed_date));
+      return String(b.signed_date).localeCompare(String(a.signed_date));
     });
     var matchedRows = rows.filter(function (row) { return row.match_status === "matched"; });
     var unmatchedRows = rows.filter(function (row) { return row.match_status !== "matched"; });
-    var sampleRows = matchedRows.slice(0, 40).concat(unmatchedRows.slice(0, 10));
-    for (var r = 0; r < sampleRows.length; r++) {
-      var row = sampleRows[r];
+    var allRows = matchedRows.concat(unmatchedRows);
+    for (var r = 0; r < allRows.length; r++) {
+      var row = allRows[r];
       var trA = document.createElement("tr");
       var vals = [
         row.case_id,
@@ -642,14 +640,13 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
   }
 
   function renderAttributionTakeaways(attrDoc) {
-    var t1 = el("takeaway-attribution-1");
-    var t2 = el("takeaway-attribution-2");
-    var t3 = el("takeaway-attribution-3");
-    if (!t1 || !t2 || !t3) return;
+    var list = el("takeaway-attribution-list");
+    if (!list) return;
+    list.innerHTML = "";
     if (!attrDoc || !Array.isArray(attrDoc.calls)) {
-      t1.textContent = "Takeaways will appear after data/callrail_enriched.json loads.";
-      t2.textContent = "";
-      t3.textContent = "";
+      var li0 = document.createElement("li");
+      li0.textContent = "Takeaways will appear after data/callrail_enriched.json loads.";
+      list.appendChild(li0);
       return;
     }
 
@@ -657,14 +654,15 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
       return c && c.signed_flag === true;
     });
     if (!signed.length) {
-      t1.textContent = "No matched signed cases were found in the current attribution file.";
-      t2.textContent = "";
-      t3.textContent = "";
+      var li1 = document.createElement("li");
+      li1.textContent = "No matched signed cases were found in the current attribution file.";
+      list.appendChild(li1);
       return;
     }
 
     var bySource = {};
     var byMarketing = {};
+    var spanishMonth = { feb: 0, mar: 0 };
     for (var i = 0; i < signed.length; i++) {
       var c = signed[i];
       var src = srcKey(c);
@@ -673,6 +671,10 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
         ? String(c.marketing_source).trim()
         : "(blank)";
       byMarketing[m] = (byMarketing[m] || 0) + 1;
+      if (/spanish|espanol|español/i.test(m)) {
+        if (c.month_key === FEB) spanishMonth.feb++;
+        if (c.month_key === MAR) spanishMonth.mar++;
+      }
     }
     var topSources = Object.keys(bySource).sort(function (a, b) {
       return bySource[b] - bySource[a];
@@ -686,22 +688,40 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     var s1 = topSources[0] || "Google Ads";
     var s2 = topSources[1] || "GMB";
     var s3 = topSources[2] || "Direct";
-    t1.textContent =
+    var bullets = [];
+    bullets.push(
       "Most matched signed cases are currently being credited to " +
       s1 +
       ", with " +
       s2 +
       " and " +
       s3 +
-      " next. That is the clearest directional read on where signed cases are coming from right now.";
-    t2.textContent =
+      " next. That is the clearest directional read on where signed cases are coming from right now."
+    );
+    bullets.push(
       spanishCount > 0
-        ? "Spanish may be getting less visible credit than it deserves in the top-line source table. " +
+        ? "Spanish is probably getting less visible credit than it deserves in the top-line source table. " +
           String(spanishCount) +
           " matched signed cases carry a Spanish-style Lead Docket intake source, but those rows still roll up under broader CallRail buckets like Google Ads."
-        : "Spanish does not stand out clearly in the current matched signed-case sample, so check intake-entered source labels before making language-budget cuts.";
-    t3.textContent =
+        : "Spanish does not stand out clearly in the current matched signed-case sample, so check intake-entered source labels before making language-budget cuts."
+    );
+    bullets.push(
+      spanishMonth.feb > 0 || spanishMonth.mar > 0
+        ? "On the matched signed-case view, Spanish looks stronger in February (" +
+          String(spanishMonth.feb) +
+          ") than March (" +
+          String(spanishMonth.mar) +
+          "). That does not prove March spend failed by itself, but it does support your read that March Spanish underperformed on signed-case attribution."
+        : "Spanish did not produce a clear matched signed-case pattern in the current file, so any Spanish read should be treated carefully."
+    );
+    bullets.push(
       "Best guess: Lead Docket intake source is capturing campaign nuance better than the top-level CallRail source field. For budget decisions, trust Lead Docket case totals exactly, and treat CallRail source attribution as directional proof of which channels are strengthening or weakening.";
+    );
+    for (var bi = 0; bi < bullets.length; bi++) {
+      var li = document.createElement("li");
+      li.textContent = bullets[bi];
+      list.appendChild(li);
+    }
   }
 
   Promise.all([
