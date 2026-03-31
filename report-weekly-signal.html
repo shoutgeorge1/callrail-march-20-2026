@@ -98,24 +98,11 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     Attribution is based on phone + timing linkage between CallRail and Lead Docket.
     Not all calls can be matched due to intake data limitations. Metrics are directional.
   </p>
-
-  <h2>Signed Case Attribution Audit (Sample)</h2>
-  <table class="data">
-    <thead>
-      <tr>
-        <th>case_id</th>
-        <th>signed_date</th>
-        <th>primary_phone</th>
-        <th>call_start_time</th>
-        <th>source</th>
-        <th class="num">duration</th>
-        <th>match_confidence</th>
-        <th class="num">time_difference_hours</th>
-        <th>match_status</th>
-      </tr>
-    </thead>
-    <tbody id="tbody-signed-audit"></tbody>
-  </table>
+  <p class="meta">
+    Only ~30–35% of calls can be directly tied to signed cases using phone and timing linkage.
+    Google Ads drives the majority of matched cases, followed by GMB and Direct.
+    A significant portion of calls cannot be linked due to missing or inconsistent phone data during intake.
+  </p>
 
   <h2>Totals (CallRail check)</h2>
   <table class="data">
@@ -186,6 +173,24 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     <thead><tr><th>Month</th><th class="num">Cases</th></tr></thead>
     <tbody id="tbody-month-totals"></tbody>
     <tfoot id="foot-month-totals"></tfoot>
+  </table>
+
+  <h2>Signed Case Attribution Audit (Manual Validation Sample)</h2>
+  <table class="data">
+    <thead>
+      <tr>
+        <th>case_id</th>
+        <th>signed_date</th>
+        <th>primary_phone</th>
+        <th>call_start_time</th>
+        <th>source</th>
+        <th class="num">duration</th>
+        <th>match_confidence</th>
+        <th class="num">time_difference_hours</th>
+        <th>match_status</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-signed-audit"></tbody>
   </table>
 
   <p class="err" id="load-err" style="display:none;"></p>
@@ -631,8 +636,8 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     }
 
     el("meta-range").textContent =
-      "Calls: Feb ← scored 2026-02 · Mar ← scored 2026-03 + last-60d (deduped by call_id). " +
-      "Table footers and “Totals (CallRail check)” sum rows — compare those to CallRail for the same months.";
+      "CallRail call data matched to Lead Docket cases. " +
+      "Coverage reflects how many calls can be reliably linked to signed cases.";
     if (!casesDoc || !Array.isArray(casesDoc.calls)) msgs.push("Missing " + CASES_URL);
     renderAttributionCoverage(el("tbody-attribution-coverage"), attrDoc);
     renderSignedAuditTable(el("tbody-signed-audit"), attrDoc);
