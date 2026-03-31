@@ -84,6 +84,39 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     <p class="meta" id="meta-range"></p>
   </header>
 
+  <h2>Attribution Coverage (CallRail ↔ Lead Docket)</h2>
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th class="num">Value</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-attribution-coverage"></tbody>
+  </table>
+  <p class="meta">
+    Attribution is based on phone + timing linkage between CallRail and Lead Docket.
+    Not all calls can be matched due to intake data limitations. Metrics are directional.
+  </p>
+
+  <h2>Signed Case Attribution Audit (Sample)</h2>
+  <table class="data">
+    <thead>
+      <tr>
+        <th>case_id</th>
+        <th>signed_date</th>
+        <th>primary_phone</th>
+        <th>call_start_time</th>
+        <th>source</th>
+        <th class="num">duration</th>
+        <th>match_confidence</th>
+        <th class="num">time_difference_hours</th>
+        <th>match_status</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-signed-audit"></tbody>
+  </table>
+
   <h2>Totals (CallRail check)</h2>
   <table class="data">
     <thead>
@@ -178,6 +211,7 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     "data/callrail_scored_calls_2026_03.json",
   ];
   var CASES_URL = "data/callrail_cases_enriched.json";
+  var ATTRIBUTION_URL = "data/callrail_enriched.json";
   var COUNTS_URL = "data/case_counts.json";
 
   if (location.protocol === "file:") {
@@ -422,18 +456,159 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     return { feb: feb, mar: mar };
   }
 
+  function fmtPct1(x) {
+    var n = Number(x);
+    return Number.isFinite(n) ? n.toFixed(1) + "%" : "—";
+  }
+
+  function fmtNumOrDash(x) {
+    var n = Number(x);
+    return Number.isFinite(n) ? String(n) : "—";
+  }
+
+  function fmtHours(ms) {
+    var n = Number(ms);
+    if (!Number.isFinite(n)) return "—";
+    var h = Math.round((n / 3600000) * 10) / 10;
+    return Math.abs(h - Math.round(h)) < 1e-9 ? String(Math.round(h)) : h.toFixed(1);
+  }
+
+  function caseConfidenceRank(v) {
+    var s = String(v || "").toLowerCase();
+    if (s === "high") return 0;
+    if (s === "medium") return 1;
+    if (s === "low") return 2;
+    if (s === "extended") return 3;
+    if (s === "very_low") return 4;
+    return 9;
+  }
+
+  function renderAttributionCoverage(tbody, attrDoc) {
+    tbody.innerHTML = "";
+    var summary = attrDoc && attrDoc.summary ? attrDoc.summary : null;
+    if (!summary) {
+      emptyRow(tbody, 2, "Missing data/callrail_enriched.json");
+      return;
+    }
+    var conf = summary.match_confidence || {};
+    var rows = [
+      ["Total calls", fmtNumOrDash(summary.total_calls)],
+      ["Matched calls", fmtNumOrDash(summary.matched_leads)],
+      ["Match rate %", fmtPct1(summary.match_rate_pct)],
+      ["High matches", fmtNumOrDash(conf.high)],
+      ["Medium matches", fmtNumOrDash(conf.medium)],
+      ["Low matches", fmtNumOrDash(conf.low)],
+      ["Signed cases matched", fmtNumOrDash(summary.signed_cases)],
+    ];
+    for (var i = 0; i < rows.length; i++) {
+      var tr = document.createElement("tr");
+      var td0 = document.createElement("td");
+      td0.textContent = rows[i][0];
+      var td1 = document.createElement("td");
+      td1.className = "num";
+      td1.textContent = rows[i][1];
+      tr.appendChild(td0);
+      tr.appendChild(td1);
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderSignedAuditTable(tbody, attrDoc) {
+    tbody.innerHTML = "";
+    if (!attrDoc) {
+      emptyRow(tbody, 9, "Missing data/callrail_enriched.json");
+      return;
+    }
+    var rows = [];
+    var calls = Array.isArray(attrDoc.calls) ? attrDoc.calls : [];
+    for (var i = 0; i < calls.length; i++) {
+      var c = calls[i];
+      if (!c || c.signed_flag !== true) continue;
+      var signedMs = c.lead_match_delta_ms != null && callMs(c) != null
+        ? callMs(c) + Number(c.lead_match_delta_ms)
+        : null;
+      rows.push({
+        case_id: c.matched_case_id || c.matched_lead_id || "—",
+        signed_date: signedMs != null ? new Date(signedMs).toISOString() : "—",
+        primary_phone: c.customer_phone_number || c.caller_phone_number || "—",
+        call_start_time: preferredTs(c) || "—",
+        source: srcKey(c),
+        duration: Number.isFinite(Number(c.duration)) ? String(Number(c.duration)) : "—",
+        match_confidence: c.match_confidence || "—",
+        time_difference_hours: fmtHours(c.lead_match_delta_ms),
+        match_status: "matched",
+      });
+    }
+    var unmatched = attrDoc.unmatched && Array.isArray(attrDoc.unmatched.leads)
+      ? attrDoc.unmatched.leads
+      : [];
+    for (var u = 0; u < unmatched.length; u++) {
+      var L = unmatched[u];
+      if (!L || L.lead_status == null) continue;
+      var st = String(L.lead_status).toLowerCase();
+      if (st.indexOf("signed") < 0 && st.indexOf("retainer") < 0 && st.indexOf("closed") < 0) continue;
+      rows.push({
+        case_id: L.case_id || L.lead_id || "—",
+        signed_date: L.created_at || "—",
+        primary_phone: L.phones && L.phones.length ? (L.phones[0].normalized_phone || L.phones[0].original_phone || "—") : "—",
+        call_start_time: "—",
+        source: "—",
+        duration: "—",
+        match_confidence: "—",
+        time_difference_hours: "—",
+        match_status: "unmatched",
+      });
+    }
+    if (!rows.length) {
+      emptyRow(tbody, 9, "No signed audit rows.");
+      return;
+    }
+    rows.sort(function (a, b) {
+      if (a.match_status !== b.match_status) return a.match_status === "matched" ? -1 : 1;
+      var ra = caseConfidenceRank(a.match_confidence);
+      var rb = caseConfidenceRank(b.match_confidence);
+      if (ra !== rb) return ra - rb;
+      return String(a.signed_date).localeCompare(String(b.signed_date));
+    });
+    var top = rows.slice(0, 50);
+    for (var r = 0; r < top.length; r++) {
+      var row = top[r];
+      var trA = document.createElement("tr");
+      var vals = [
+        row.case_id,
+        row.signed_date,
+        row.primary_phone,
+        row.call_start_time,
+        row.source,
+        row.duration,
+        row.match_confidence,
+        row.time_difference_hours,
+        row.match_status,
+      ];
+      for (var cidx = 0; cidx < vals.length; cidx++) {
+        var td = document.createElement("td");
+        if (cidx === 5 || cidx === 7) td.className = "num";
+        td.textContent = vals[cidx];
+        trA.appendChild(td);
+      }
+      tbody.appendChild(trA);
+    }
+  }
+
   Promise.all([
     fetchFirstOk(FEB_SCORED_URLS).catch(function () { return null; }),
     fetchFirstOk(MAR_SCORED_URLS).catch(function () { return null; }),
     fetchFirstOk(CALLS_LAST60_URLS).catch(function () { return null; }),
     fetchJson(CASES_URL).catch(function () { return null; }),
+    fetchJson(ATTRIBUTION_URL).catch(function () { return null; }),
     fetchJson(COUNTS_URL).catch(function () { return null; }),
   ]).then(function (results) {
     var febFile = results[0];
     var marFile = results[1];
     var last60 = results[2];
     var casesDoc = results[3];
-    var countsDoc = results[4];
+    var attrDoc = results[4];
+    var countsDoc = results[5];
 
     var callsRaw = mergeCallsById([
       asArray(febFile),
@@ -459,6 +634,8 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
       "Calls: Feb ← scored 2026-02 · Mar ← scored 2026-03 + last-60d (deduped by call_id). " +
       "Table footers and “Totals (CallRail check)” sum rows — compare those to CallRail for the same months.";
     if (!casesDoc || !Array.isArray(casesDoc.calls)) msgs.push("Missing " + CASES_URL);
+    renderAttributionCoverage(el("tbody-attribution-coverage"), attrDoc);
+    renderSignedAuditTable(el("tbody-signed-audit"), attrDoc);
 
     var enrichedById = {};
     if (casesDoc && casesDoc.calls) {
