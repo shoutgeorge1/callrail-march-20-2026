@@ -99,7 +99,14 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     Not all calls can be matched due to intake data limitations. Metrics are directional.
   </p>
   <p class="meta">
-    Only ~30–35% of calls can be directly tied to signed cases using phone and timing linkage.
+    Match Confidence Definitions:
+    High = exact phone match within same-day window (most reliable)
+    <br/>Medium = exact phone match within broader time window
+    <br/>Low = partial or weaker match (directional only)
+  </p>
+  <p class="meta">
+    Key Insight:
+    <br/>Only ~30–35% of calls can be directly tied to signed cases.
     Google Ads drives the majority of matched cases, followed by GMB and Direct.
     A significant portion of calls cannot be linked due to missing or inconsistent phone data during intake.
   </p>
@@ -153,7 +160,11 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     <tfoot id="foot-strong-source"></tfoot>
   </table>
 
-  <h2>Verified Case Signal (Feb vs March)</h2>
+  <h2>Matched Signed Case Signal (All Confidence Levels)</h2>
+  <p class="meta">
+    Includes all matched signed cases (high, medium, low confidence and reviewed directional matches).
+    High confidence represents the most reliable linkage.
+  </p>
   <table class="data">
     <thead>
       <tr>
@@ -176,18 +187,28 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
   </table>
 
   <h2>Signed Case Attribution Audit (Manual Validation Sample)</h2>
+  <p class="meta">
+    This table shows how signed cases in Lead Docket are matched to CallRail calls.
+    <br/>Use this to manually verify attribution accuracy.
+  </p>
+  <p class="meta">
+    Sample only: matched rows are shown first so you can spot-check the logic quickly.
+    A smaller unmatched sample is included at the bottom for QA.
+  </p>
   <table class="data">
     <thead>
       <tr>
-        <th>case_id</th>
-        <th>signed_date</th>
-        <th>primary_phone</th>
-        <th>call_start_time</th>
-        <th>source</th>
-        <th class="num">duration</th>
-        <th>match_confidence</th>
-        <th class="num">time_difference_hours</th>
-        <th>match_status</th>
+        <th>LD case_id</th>
+        <th>LD signed_date</th>
+        <th>LD primary_phone</th>
+        <th>LD intake_source</th>
+        <th>CR call_id</th>
+        <th>CR call_start_time</th>
+        <th>CR source</th>
+        <th class="num">CR duration</th>
+        <th>Match confidence</th>
+        <th class="num">Time diff hours</th>
+        <th>Match status</th>
       </tr>
     </thead>
     <tbody id="tbody-signed-audit"></tbody>
@@ -378,7 +399,7 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     var rows = [
       { label: "All calls", o: callsSum },
       { label: "Strong calls (≥120s or HIGH match)", o: strongSum },
-      { label: "Verified signed (HIGH only)", o: verifiedSum },
+      { label: "Matched signed cases (all confidence levels)", o: verifiedSum },
     ];
     for (var r = 0; r < rows.length; r++) {
       var tr = document.createElement("tr");
@@ -495,15 +516,22 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
       emptyRow(tbody, 2, "Missing data/callrail_enriched.json");
       return;
     }
-    var conf = summary.match_confidence || {};
+    var signedRows = [];
+    var calls = Array.isArray(attrDoc.calls) ? attrDoc.calls : [];
+    for (var i0 = 0; i0 < calls.length; i0++) {
+      if (calls[i0] && calls[i0].signed_flag === true) signedRows.push(calls[i0]);
+    }
+    var reviewBand = 0;
+    for (var s0 = 0; s0 < signedRows.length; s0++) {
+      var mc0 = String(signedRows[s0].match_confidence || "").toLowerCase();
+      if (mc0 && mc0 !== "high") reviewBand++;
+    }
     var rows = [
       ["Total calls", fmtNumOrDash(summary.total_calls)],
       ["Matched calls", fmtNumOrDash(summary.matched_leads)],
       ["Match rate %", fmtPct1(summary.match_rate_pct)],
-      ["High matches", fmtNumOrDash(conf.high)],
-      ["Medium matches", fmtNumOrDash(conf.medium)],
-      ["Low matches", fmtNumOrDash(conf.low)],
-      ["Signed cases matched", fmtNumOrDash(summary.signed_cases)],
+      ["Matched signed cases", fmtNumOrDash(summary.signed_cases)],
+      ["Estimated review band", summary.signed_cases != null ? "+/- " + String(reviewBand) : "—"],
     ];
     for (var i = 0; i < rows.length; i++) {
       var tr = document.createElement("tr");
@@ -521,7 +549,7 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
   function renderSignedAuditTable(tbody, attrDoc) {
     tbody.innerHTML = "";
     if (!attrDoc) {
-      emptyRow(tbody, 9, "Missing data/callrail_enriched.json");
+      emptyRow(tbody, 11, "Missing data/callrail_enriched.json");
       return;
     }
     var rows = [];
@@ -536,6 +564,8 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
         case_id: c.matched_case_id || c.matched_lead_id || "—",
         signed_date: signedMs != null ? new Date(signedMs).toISOString() : "—",
         primary_phone: c.customer_phone_number || c.caller_phone_number || "—",
+        intake_source: c.marketing_source || "—",
+        call_id: c.call_id || "—",
         call_start_time: preferredTs(c) || "—",
         source: srcKey(c),
         duration: Number.isFinite(Number(c.duration)) ? String(Number(c.duration)) : "—",
@@ -556,6 +586,8 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
         case_id: L.case_id || L.lead_id || "—",
         signed_date: L.created_at || "—",
         primary_phone: L.phones && L.phones.length ? (L.phones[0].normalized_phone || L.phones[0].original_phone || "—") : "—",
+        intake_source: L.marketing_source || "—",
+        call_id: "—",
         call_start_time: "—",
         source: "—",
         duration: "—",
@@ -565,7 +597,7 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
       });
     }
     if (!rows.length) {
-      emptyRow(tbody, 9, "No signed audit rows.");
+      emptyRow(tbody, 11, "No signed audit rows.");
       return;
     }
     rows.sort(function (a, b) {
@@ -575,14 +607,18 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
       if (ra !== rb) return ra - rb;
       return String(a.signed_date).localeCompare(String(b.signed_date));
     });
-    var top = rows.slice(0, 50);
-    for (var r = 0; r < top.length; r++) {
-      var row = top[r];
+    var matchedRows = rows.filter(function (row) { return row.match_status === "matched"; });
+    var unmatchedRows = rows.filter(function (row) { return row.match_status !== "matched"; });
+    var sampleRows = matchedRows.slice(0, 40).concat(unmatchedRows.slice(0, 10));
+    for (var r = 0; r < sampleRows.length; r++) {
+      var row = sampleRows[r];
       var trA = document.createElement("tr");
       var vals = [
         row.case_id,
         row.signed_date,
         row.primary_phone,
+        row.intake_source,
+        row.call_id,
         row.call_start_time,
         row.source,
         row.duration,
@@ -592,7 +628,7 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
       ];
       for (var cidx = 0; cidx < vals.length; cidx++) {
         var td = document.createElement("td");
-        if (cidx === 5 || cidx === 7) td.className = "num";
+        if (cidx === 7 || cidx === 9) td.className = "num";
         td.textContent = vals[cidx];
         trA.appendChild(td);
       }
@@ -635,9 +671,10 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
       msgs.push("No call records after merge. Run npm run serve from the project folder.");
     }
 
-    el("meta-range").textContent =
-      "CallRail call data matched to Lead Docket cases. " +
-      "Coverage reflects how many calls can be reliably linked to signed cases.";
+    el("meta-range").innerHTML =
+      "Reporting period: February 2026 – March 2026" +
+      "<br/>" +
+      "CallRail call data matched to Lead Docket cases using phone number and timing.";
     if (!casesDoc || !Array.isArray(casesDoc.calls)) msgs.push("Missing " + CASES_URL);
     renderAttributionCoverage(el("tbody-attribution-coverage"), attrDoc);
     renderSignedAuditTable(el("tbody-signed-audit"), attrDoc);
@@ -684,11 +721,11 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     );
 
     var verifiedBySource = {};
-    if (casesDoc && casesDoc.calls) {
-      for (var v = 0; v < casesDoc.calls.length; v++) {
-        var ec = casesDoc.calls[v];
-        if (!ec || ec.case_signed !== true) continue;
-        if (ec.match_confidence !== "HIGH") continue;
+    if (attrDoc && Array.isArray(attrDoc.calls)) {
+      for (var v = 0; v < attrDoc.calls.length; v++) {
+        var ec = attrDoc.calls[v];
+        if (!ec || ec.signed_flag !== true) continue;
+        if (ec.lead_created !== true) continue;
         var tv = callMs(ec);
         if (tv == null) continue;
         var vb = monthBucket(tv);
