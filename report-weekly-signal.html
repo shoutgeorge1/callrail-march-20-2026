@@ -192,7 +192,7 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     <br/>Use this to manually verify attribution accuracy.
   </p>
   <p class="meta">
-    Sample only: matched rows are shown first so you can spot-check the logic quickly.
+    All matched signed cases are shown first so you can spot-check the logic quickly.
     A smaller unmatched sample is included at the bottom for QA.
   </p>
   <table class="data">
@@ -213,6 +213,11 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     </thead>
     <tbody id="tbody-signed-audit"></tbody>
   </table>
+
+  <h2>Attribution Takeaways (Directional)</h2>
+  <p class="meta" id="takeaway-attribution-1"></p>
+  <p class="meta" id="takeaway-attribution-2"></p>
+  <p class="meta" id="takeaway-attribution-3"></p>
 
   <p class="err" id="load-err" style="display:none;"></p>
 </div>
@@ -636,6 +641,69 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     }
   }
 
+  function renderAttributionTakeaways(attrDoc) {
+    var t1 = el("takeaway-attribution-1");
+    var t2 = el("takeaway-attribution-2");
+    var t3 = el("takeaway-attribution-3");
+    if (!t1 || !t2 || !t3) return;
+    if (!attrDoc || !Array.isArray(attrDoc.calls)) {
+      t1.textContent = "Takeaways will appear after data/callrail_enriched.json loads.";
+      t2.textContent = "";
+      t3.textContent = "";
+      return;
+    }
+
+    var signed = attrDoc.calls.filter(function (c) {
+      return c && c.signed_flag === true;
+    });
+    if (!signed.length) {
+      t1.textContent = "No matched signed cases were found in the current attribution file.";
+      t2.textContent = "";
+      t3.textContent = "";
+      return;
+    }
+
+    var bySource = {};
+    var byMarketing = {};
+    for (var i = 0; i < signed.length; i++) {
+      var c = signed[i];
+      var src = srcKey(c);
+      bySource[src] = (bySource[src] || 0) + 1;
+      var m = c.marketing_source && String(c.marketing_source).trim()
+        ? String(c.marketing_source).trim()
+        : "(blank)";
+      byMarketing[m] = (byMarketing[m] || 0) + 1;
+    }
+    var topSources = Object.keys(bySource).sort(function (a, b) {
+      return bySource[b] - bySource[a];
+    });
+    var marketingKeys = Object.keys(byMarketing);
+    var spanishCount = 0;
+    for (var mk = 0; mk < marketingKeys.length; mk++) {
+      if (/spanish|espanol|español/i.test(marketingKeys[mk])) spanishCount += byMarketing[marketingKeys[mk]];
+    }
+
+    var s1 = topSources[0] || "Google Ads";
+    var s2 = topSources[1] || "GMB";
+    var s3 = topSources[2] || "Direct";
+    t1.textContent =
+      "Most matched signed cases are currently being credited to " +
+      s1 +
+      ", with " +
+      s2 +
+      " and " +
+      s3 +
+      " next. That is the clearest directional read on where signed cases are coming from right now.";
+    t2.textContent =
+      spanishCount > 0
+        ? "Spanish may be getting less visible credit than it deserves in the top-line source table. " +
+          String(spanishCount) +
+          " matched signed cases carry a Spanish-style Lead Docket intake source, but those rows still roll up under broader CallRail buckets like Google Ads."
+        : "Spanish does not stand out clearly in the current matched signed-case sample, so check intake-entered source labels before making language-budget cuts.";
+    t3.textContent =
+      "Best guess: Lead Docket intake source is capturing campaign nuance better than the top-level CallRail source field. For budget decisions, trust Lead Docket case totals exactly, and treat CallRail source attribution as directional proof of which channels are strengthening or weakening.";
+  }
+
   Promise.all([
     fetchFirstOk(FEB_SCORED_URLS).catch(function () { return null; }),
     fetchFirstOk(MAR_SCORED_URLS).catch(function () { return null; }),
@@ -678,6 +746,7 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     if (!casesDoc || !Array.isArray(casesDoc.calls)) msgs.push("Missing " + CASES_URL);
     renderAttributionCoverage(el("tbody-attribution-coverage"), attrDoc);
     renderSignedAuditTable(el("tbody-signed-audit"), attrDoc);
+    renderAttributionTakeaways(attrDoc);
 
     var enrichedById = {};
     if (casesDoc && casesDoc.calls) {
@@ -753,7 +822,37 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     mfoot.innerHTML = "";
     var monthFebN = null;
     var monthMarN = null;
-    if (countsDoc && Array.isArray(countsDoc.months) && countsDoc.months.length) {
+    if (attrDoc && attrDoc.months && typeof attrDoc.months === "object") {
+      var monthRows = [
+        {
+          key: FEB,
+          label: "February 2026",
+          val: attrDoc.months[FEB] && Number(attrDoc.months[FEB].signed),
+        },
+        {
+          key: MAR,
+          label: "March 2026",
+          val: attrDoc.months[MAR] && Number(attrDoc.months[MAR].signed),
+        },
+      ];
+      var anyMonth = false;
+      for (var mr = 0; mr < monthRows.length; mr++) {
+        if (!Number.isFinite(monthRows[mr].val)) continue;
+        anyMonth = true;
+        if (monthRows[mr].key === FEB) monthFebN = monthRows[mr].val;
+        if (monthRows[mr].key === MAR) monthMarN = monthRows[mr].val;
+        var trAttr = document.createElement("tr");
+        var tdAttrA = document.createElement("td");
+        tdAttrA.textContent = monthRows[mr].label;
+        var tdAttrB = document.createElement("td");
+        tdAttrB.className = "num";
+        tdAttrB.textContent = String(monthRows[mr].val);
+        trAttr.appendChild(tdAttrA);
+        trAttr.appendChild(tdAttrB);
+        mtbody.appendChild(trAttr);
+      }
+      if (!anyMonth) emptyRow(mtbody, 2, "—");
+    } else if (countsDoc && Array.isArray(countsDoc.months) && countsDoc.months.length) {
       var byM = {};
       for (var m = 0; m < countsDoc.months.length; m++) {
         var mo = countsDoc.months[m];
