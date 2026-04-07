@@ -87,6 +87,7 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
   </header>
 
   <h2>Monthly Performance Trend (Feb → March → April projection)</h2>
+  <p class="meta">Estimated cases adjust for incomplete attribution using historical match rate.</p>
   <p class="meta">Month-over-month change (Feb vs March) plus April MTD and pace-based month-end projection. Same metric definitions as the source tables below.</p>
   <p class="meta" id="meta-monthly-trend-early" style="display:none;"></p>
   <table class="data">
@@ -99,6 +100,7 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
         <th class="num">% Change</th>
         <th class="num">April MTD</th>
         <th class="num">April Projected</th>
+        <th class="num">April vs March %</th>
       </tr>
     </thead>
     <tbody id="tbody-monthly-performance-trend"></tbody>
@@ -176,7 +178,7 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     <tbody id="tbody-rollups"></tbody>
   </table>
 
-  <h2>Calls by Source (Feb vs March)</h2>
+  <h2>Calls by Source (Filtered) (Feb vs March)</h2>
   <table class="data">
     <thead>
       <tr>
@@ -191,7 +193,7 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     <tfoot id="foot-calls-source"></tfoot>
   </table>
 
-  <h2>Strong Calls by Source (Feb vs March)</h2>
+  <h2>Strong Calls by Source (Filtered) (Feb vs March)</h2>
   <p class="meta" id="def-strong">
     <strong>Strong</strong> = a call that meets <em>either</em> condition: (1) CallRail
     <code>duration</code> is at least 120 seconds, or (2) the call is in the enriched cases file
@@ -211,7 +213,7 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     <tfoot id="foot-strong-source"></tfoot>
   </table>
 
-  <h2>Matched Signed Case Signal (All Confidence Levels)</h2>
+  <h2>Matched Cases by Source (All Confidence Levels)</h2>
   <p class="meta">
     Includes all matched signed cases (high, medium, low confidence and reviewed directional matches).
     High confidence represents the most reliable linkage.
@@ -379,6 +381,40 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     map[source][bucket]++;
   }
 
+  /** Sources with March count under 5 roll into Other (Low Volume). */
+  function collapseLowVolumeSources(map) {
+    var result = {};
+    var other = { feb: 0, mar: 0, apr: 0 };
+    Object.keys(map).forEach(function (k) {
+      if ((map[k].mar || 0) <= 4) {
+        other.feb += map[k].feb || 0;
+        other.mar += map[k].mar || 0;
+        other.apr += map[k].apr || 0;
+      } else {
+        result[k] = map[k];
+      }
+    });
+    if (other.mar > 0) {
+      result["Other (Low Volume)"] = other;
+    }
+    return result;
+  }
+
+  function resolveMatchRate(attrDoc) {
+    var summary = attrDoc && attrDoc.summary;
+    var mrp = summary && summary.match_rate_pct != null ? Number(summary.match_rate_pct) : NaN;
+    if (!Number.isFinite(mrp) || mrp <= 0) return 0.3;
+    return mrp / 100;
+  }
+
+  function estimatedCasesFromMatched(matchedCount, matchRate) {
+    var m = Number(matchedCount);
+    var r = Number(matchRate);
+    if (!Number.isFinite(m) || m <= 0) return 0;
+    if (!Number.isFinite(r) || r <= 0) return 0;
+    return Math.round(m / r);
+  }
+
   function sumAprAcrossMap(map) {
     var keys = Object.keys(map);
     var s = 0;
@@ -426,8 +462,34 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     return "";
   }
 
-  /** Executive MoM + April pace: calls / strong / matched cases. */
-  function renderMonthlyPerformanceTrend(tbody, earlyNoteEl, trend) {
+  /** April projected vs March actual; March = 0 → "new". */
+  function pctAprProjVsMar(marchVal, aprProjectedVal) {
+    var m = Number(marchVal);
+    var a = Number(aprProjectedVal);
+    if (!Number.isFinite(m) || !Number.isFinite(a)) return "—";
+    if (m === 0) return a === 0 ? "—" : "new";
+    var p = ((a - m) / m) * 100;
+    var rounded = Math.round(p * 10) / 10;
+    var s =
+      Math.abs(rounded - Math.round(rounded)) < 1e-9
+        ? String(Math.round(rounded))
+        : rounded.toFixed(1);
+    return (p > 0 ? "+" : "") + s + "%";
+  }
+
+  function pctAprProjVsMarClass(marchVal, aprProjectedVal, displayStr) {
+    if (displayStr === "—") return "";
+    if (displayStr === "new") return "trend-pos";
+    var m = Number(marchVal);
+    var a = Number(aprProjectedVal);
+    if (!Number.isFinite(m) || !Number.isFinite(a)) return "";
+    if (a > m) return "trend-pos";
+    if (a < m) return "trend-neg";
+    return "";
+  }
+
+  /** Executive MoM + April pace: calls / strong / matched / estimated cases. */
+  function renderMonthlyPerformanceTrend(tbody, earlyNoteEl, trend, matchRate) {
     if (!tbody) return;
     tbody.innerHTML = "";
     if (earlyNoteEl) {
@@ -441,26 +503,40 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
       }
     }
     var metrics = [
-      { key: "calls", label: "Calls" },
-      { key: "strong", label: "Strong Calls" },
-      { key: "cases", label: "Cases" },
+      { type: "base", key: "calls", label: "Calls" },
+      { type: "base", key: "strong", label: "Strong Calls" },
+      { type: "base", key: "cases", label: "Cases (Matched)" },
+      { type: "estimated", label: "Estimated Cases" },
     ];
     for (var i = 0; i < metrics.length; i++) {
-      var mk = metrics[i].key;
-      var feb = trend.feb[mk];
-      var mar = trend.mar[mk];
+      var spec = metrics[i];
+      var feb;
+      var mar;
+      var aprMtd;
+      var aprProj;
+      if (spec.type === "estimated") {
+        feb = estimatedCasesFromMatched(trend.feb.cases, matchRate);
+        mar = estimatedCasesFromMatched(trend.mar.cases, matchRate);
+        aprMtd = estimatedCasesFromMatched(trend.apr.cases, matchRate);
+        aprProj = estimatedCasesFromMatched(trend.apr.cases_proj, matchRate);
+      } else {
+        var mk = spec.key;
+        feb = trend.feb[mk];
+        mar = trend.mar[mk];
+        aprMtd = trend.apr[mk];
+        aprProj =
+          mk === "calls"
+            ? trend.apr.calls_proj
+            : mk === "strong"
+              ? trend.apr.strong_proj
+              : trend.apr.cases_proj;
+      }
       var delta = mar - feb;
       var pct = pctVsFeb(feb, mar);
-      var aprMtd = trend.apr[mk];
-      var aprProj =
-        mk === "calls"
-          ? trend.apr.calls_proj
-          : mk === "strong"
-            ? trend.apr.strong_proj
-            : trend.apr.cases_proj;
+      var aprVsMar = pctAprProjVsMar(mar, aprProj);
       var tr = document.createElement("tr");
       var td0 = document.createElement("td");
-      td0.textContent = metrics[i].label;
+      td0.textContent = spec.label;
       var td1 = document.createElement("td");
       td1.className = "num";
       td1.textContent = String(Math.round(feb));
@@ -479,6 +555,9 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
       var td6 = document.createElement("td");
       td6.className = "num";
       td6.textContent = String(Math.round(aprProj));
+      var td7 = document.createElement("td");
+      td7.className = "num " + pctAprProjVsMarClass(mar, aprProj, aprVsMar);
+      td7.textContent = aprVsMar;
       tr.appendChild(td0);
       tr.appendChild(td1);
       tr.appendChild(td2);
@@ -486,18 +565,25 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
       tr.appendChild(td4);
       tr.appendChild(td5);
       tr.appendChild(td6);
+      tr.appendChild(td7);
       tbody.appendChild(tr);
     }
   }
 
-  function renderAprilMtdProjection(tbody, callsApr, strongApr, casesApr, basis) {
+  function renderAprilMtdProjection(tbody, callsApr, strongApr, casesApr, basis, matchRate) {
     tbody.innerHTML = "";
     var d = basis.daysElapsed;
     var td = basis.totalDays;
+    var casesProj = project(casesApr, d, td);
     var rows = [
       { label: "Calls", mtd: callsApr, proj: project(callsApr, d, td) },
       { label: "Strong Calls", mtd: strongApr, proj: project(strongApr, d, td) },
-      { label: "Matched Cases", mtd: casesApr, proj: project(casesApr, d, td) },
+      { label: "Matched Cases", mtd: casesApr, proj: casesProj },
+      {
+        label: "Estimated Cases",
+        mtd: estimatedCasesFromMatched(casesApr, matchRate),
+        proj: estimatedCasesFromMatched(casesProj, matchRate),
+      },
     ];
     for (var r = 0; r < rows.length; r++) {
       var tr = document.createElement("tr");
@@ -1188,17 +1274,6 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
     var callsSum = sumFebMarMap(callsBySource);
     var strongSum = sumFebMarMap(strongBySource);
 
-    renderFebMarTable(
-      el("tbody-calls-source"),
-      el("foot-calls-source"),
-      callsBySource
-    );
-    renderFebMarTable(
-      el("tbody-strong-source"),
-      el("foot-strong-source"),
-      strongBySource
-    );
-
     var verifiedBySource = {};
     var casesByCampaign = {};
     if (attrDoc && Array.isArray(attrDoc.calls)) {
@@ -1216,10 +1291,25 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
       }
     }
     var verifiedSum = sumFebMarMap(verifiedBySource);
+
+    var callsBySourceView = collapseLowVolumeSources(callsBySource);
+    var strongBySourceView = collapseLowVolumeSources(strongBySource);
+    var verifiedBySourceView = collapseLowVolumeSources(verifiedBySource);
+
+    renderFebMarTable(
+      el("tbody-calls-source"),
+      el("foot-calls-source"),
+      callsBySourceView
+    );
+    renderFebMarTable(
+      el("tbody-strong-source"),
+      el("foot-strong-source"),
+      strongBySourceView
+    );
     renderFebMarTable(
       el("tbody-verified-source"),
       el("foot-verified-source"),
-      verifiedBySource
+      verifiedBySourceView
     );
 
     renderCampaignTable(
@@ -1254,10 +1344,12 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
         cases_proj: project(casesApr, aprBasis.daysElapsed, aprBasis.totalDays),
       },
     };
+    var matchRate = resolveMatchRate(attrDoc);
     renderMonthlyPerformanceTrend(
       el("tbody-monthly-performance-trend"),
       el("meta-monthly-trend-early"),
-      monthlyPerfTrend
+      monthlyPerfTrend,
+      matchRate
     );
 
     renderAprilMtdProjection(
@@ -1265,7 +1357,8 @@ table.data tfoot td.num { font-variant-numeric: tabular-nums; }
       callsApr,
       strongApr,
       casesApr,
-      aprBasis
+      aprBasis,
+      matchRate
     );
     renderAprilCampaignProjection(
       el("tbody-apr-campaign-proj"),
