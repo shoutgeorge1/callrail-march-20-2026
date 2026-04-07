@@ -1,32 +1,12 @@
 [
   {
-    "month": "2026-01",
-    "total": 80,
-    "google_ads": 13,
-    "gmb": 1,
-    "direct": 4,
-    "chat": 1,
+    "month": "2026-04",
+    "total": 100,
+    "google_ads": 26,
+    "gmb": 7,
+    "direct": 30,
+    "chat": 0,
     "referral": 0,
-    "unknown": 61
-  },
-  {
-    "month": "2026-02",
-    "total": 382,
-    "google_ads": 85,
-    "gmb": 87,
-    "direct": 15,
-    "chat": 4,
-    "referral": 0,
-    "unknown": 191
-  },
-  {
-    "month": "2026-03",
-    "total": 653,
-    "google_ads": 281,
-    "gmb": 72,
-    "direct": 136,
-    "chat": 13,
-    "referral": 0,
-    "unknown": 151
+    "unknown": 37
   }
 ]

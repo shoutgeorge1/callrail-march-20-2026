@@ -6,7 +6,13 @@ const fs = require("fs");
 const path = require("path");
 const { scoreOneRecord, WASTE_TYPES, OPPORTUNITY_THRESHOLD, SWITCH_THRESHOLD } = require("./callrail-score-core");
 
-const INPUT = path.join(__dirname, "callrail_transcripts_last60days.json");
+const INPUT = (() => {
+  const root = __dirname;
+  const inData = path.join(root, "data", "callrail_transcripts_last60days.json");
+  const inRoot = path.join(root, "callrail_transcripts_last60days.json");
+  if (fs.existsSync(inData)) return inData;
+  return inRoot;
+})();
 const OUTPUT = path.join(__dirname, "callrail_scored_calls.json");
 
 function loadTranscripts() {

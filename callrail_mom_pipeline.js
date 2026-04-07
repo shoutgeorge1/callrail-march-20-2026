@@ -15,7 +15,13 @@ const {
 } = require("./callrail-score-core");
 
 const ROOT = __dirname;
-const INPUT = path.join(ROOT, "callrail_transcripts_last60days.json");
+const DATA_DIR = path.join(ROOT, "data");
+const INPUT = (() => {
+  const inData = path.join(DATA_DIR, "callrail_transcripts_last60days.json");
+  const inRoot = path.join(ROOT, "callrail_transcripts_last60days.json");
+  if (fs.existsSync(inData)) return inData;
+  return inRoot;
+})();
 const INGEST_META = path.join(ROOT, "callrail_ingest_meta.json");
 const OUT_SUMMARY = path.join(ROOT, "callrail_month_summary.json");
 const OUT_LATEST = path.join(ROOT, "callrail_scored_calls_latest.json");
@@ -192,7 +198,12 @@ function main() {
     }
     if (scored.length === 0) continue;
     scoredByMonth[mk] = scored;
-    fs.writeFileSync(monthFileName(mk), JSON.stringify(scored, null, 2), "utf8");
+    const monthJson = JSON.stringify(scored, null, 2);
+    fs.writeFileSync(monthFileName(mk), monthJson, "utf8");
+    if (mk === "2026-04") {
+      if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+      fs.writeFileSync(path.join(DATA_DIR, "callrail_scored_calls_2026_04.json"), monthJson, "utf8");
+    }
     summary[mk] = aggregateMonth(scored);
   }
 

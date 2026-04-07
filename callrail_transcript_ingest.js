@@ -1,6 +1,8 @@
 /**
  * CallRail API v3 — full paginated ingest, 429 handling, resilient retries,
  * incremental saves every 50 calls, meta + post-run intel:build.
+ * Writes transcripts to data/callrail_transcripts_last60days.json (and mirrors to repo root).
+ * List window: local-calendar last 60 days through today (includes current month, e.g. April 2026).
  */
 require("dotenv").config();
 const axios = require("axios");
@@ -19,7 +21,9 @@ const CALLRAIL_API_KEY = process.env.CALLRAIL_API_KEY;
 const CALLRAIL_ACCOUNT_ID = process.env.CALLRAIL_ACCOUNT_ID;
 const BASE = `https://api.callrail.com/v3/a/${CALLRAIL_ACCOUNT_ID}`;
 
-const OUT_TRANSCRIPTS = path.join(process.cwd(), "callrail_transcripts_last60days.json");
+const DATA_DIR = path.join(process.cwd(), "data");
+const OUT_TRANSCRIPTS = path.join(DATA_DIR, "callrail_transcripts_last60days.json");
+const LEGACY_OUT_TRANSCRIPTS = path.join(process.cwd(), "callrail_transcripts_last60days.json");
 const OUT_META = path.join(process.cwd(), "callrail_ingest_meta.json");
 
 let firstApiRequest = true;
@@ -95,15 +99,22 @@ function requireEnv() {
   }
 }
 
-function isoDate(d) {
-  return d.toISOString().slice(0, 10);
+/** Local calendar YYYY-MM-DD (avoids UTC shifting “today” near midnight). */
+function isoDateLocal(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
+/**
+ * CallRail list filter: last ~60 days through today (local dates), inclusive.
+ * When run in April 2026, April call dates are included alongside Feb–Mar carryover.
+ */
 function rangeLast60Days() {
   const end = new Date();
-  const start = new Date();
-  start.setDate(start.getDate() - 60);
-  return { start_date: isoDate(start), end_date: isoDate(end) };
+  const start = new Date(end.getFullYear(), end.getMonth(), end.getDate() - 60);
+  return { start_date: isoDateLocal(start), end_date: isoDateLocal(end) };
 }
 
 function transcriptFromDetail(detail) {
@@ -251,21 +262,39 @@ function buildRecord(detail, callId, summary) {
 }
 
 function flushTranscripts(records) {
-  fs.writeFileSync(OUT_TRANSCRIPTS, JSON.stringify(records, null, 2), "utf8");
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  const json = JSON.stringify(records, null, 2);
+  fs.writeFileSync(OUT_TRANSCRIPTS, json, "utf8");
+  try {
+    fs.writeFileSync(LEGACY_OUT_TRANSCRIPTS, json, "utf8");
+  } catch {
+    /* optional mirror at repo root for older tooling */
+  }
 }
 
 /** Reuse rows from last checkpoint so a restart skips API for those IDs */
 function loadExistingByCallId() {
   const map = new Map();
-  if (!fs.existsSync(OUT_TRANSCRIPTS)) return map;
-  try {
-    const arr = JSON.parse(fs.readFileSync(OUT_TRANSCRIPTS, "utf8"));
-    if (!Array.isArray(arr)) return map;
-    for (const r of arr) {
-      if (r && r.call_id != null) map.set(String(r.call_id), r);
+  const paths = [OUT_TRANSCRIPTS, LEGACY_OUT_TRANSCRIPTS];
+  for (const p of paths) {
+    if (!fs.existsSync(p)) continue;
+    try {
+      const arr = JSON.parse(fs.readFileSync(p, "utf8"));
+      if (!Array.isArray(arr)) continue;
+      for (const r of arr) {
+        if (!r || r.call_id == null) continue;
+        const id = String(r.call_id);
+        const prev = map.get(id);
+        if (
+          !prev ||
+          String(prev.transcription || "").trim().length < String(r.transcription || "").trim().length
+        ) {
+          map.set(id, r);
+        }
+      }
+    } catch {
+      /* */
     }
-  } catch {
-    /* */
   }
   return map;
 }
@@ -336,32 +365,42 @@ function printFinalSummary(records) {
 async function main() {
   requireEnv();
 
-  const existingById = loadExistingByCallId();
-  if (existingById.size > 0) {
-    console.log(`Resume: ${existingById.size} call(s) loaded from checkpoint file (will skip re-fetch).`);
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+
+  /** Live merge: starts from disk checkpoint; checkpoints always write full in-window set (never shrink). */
+  const mergedById = loadExistingByCallId();
+  if (mergedById.size > 0) {
+    console.log(`Resume: ${mergedById.size} call(s) loaded from checkpoint file (will skip re-fetch).`);
   }
 
   const summaries = await fetchAllCallSummaries();
-  const records = [];
+  const summaryIdSet = new Set(summaries.map((s) => String(s.id)));
   let recordErrors = 0;
   let skippedResume = 0;
+
+  function recordsForOutput() {
+    return Array.from(mergedById.values()).filter((r) => r && summaryIdSet.has(String(r.call_id)));
+  }
+
+  function maybeCheckpoint(i) {
+    if ((i + 1) % SAVE_EVERY !== 0 && i !== summaries.length - 1) return;
+    const out = recordsForOutput();
+    flushTranscripts(out);
+    console.log(`Checkpoint: saved ${out.length} calls → ${path.relative(process.cwd(), OUT_TRANSCRIPTS)}`);
+  }
 
   for (let i = 0; i < summaries.length; i++) {
     const summary = summaries[i];
     const callId = summary.id;
     const idStr = String(callId);
 
-    const cached = existingById.get(idStr);
+    const cached = mergedById.get(idStr);
     /** Re-fetch if checkpoint row has no transcript (e.g. older ingest omitted `fields`) */
-    const resumeOk = existingById.has(idStr) && cached && safeStr(cached.transcription);
+    const resumeOk = mergedById.has(idStr) && cached && safeStr(cached.transcription);
 
     if (resumeOk) {
-      records.push(cached);
       skippedResume += 1;
-      if (records.length % SAVE_EVERY === 0 || i === summaries.length - 1) {
-        flushTranscripts(records);
-        console.log(`Checkpoint: saved ${records.length} calls → ${path.basename(OUT_TRANSCRIPTS)}`);
-      }
+      maybeCheckpoint(i);
       if ((i + 1) % 100 === 0 || i === summaries.length - 1) {
         console.log(`Detail ${i + 1} / ${summaries.length} (resume skip ${skippedResume})`);
       }
@@ -387,12 +426,9 @@ async function main() {
       continue;
     }
 
-    records.push(rec);
+    mergedById.set(idStr, rec);
 
-    if (records.length % SAVE_EVERY === 0 || i === summaries.length - 1) {
-      flushTranscripts(records);
-      console.log(`Checkpoint: saved ${records.length} calls → ${path.basename(OUT_TRANSCRIPTS)}`);
-    }
+    maybeCheckpoint(i);
 
     if ((i + 1) % 25 === 0 || i === summaries.length - 1) {
       console.log(`Detail ${i + 1} / ${summaries.length}`);
@@ -401,6 +437,7 @@ async function main() {
 
   if (skippedResume) console.log(`Resume complete: skipped ${skippedResume} existing, fetched new details for the rest.`);
 
+  const records = recordsForOutput();
   flushTranscripts(records);
 
   const meta = computeMeta(records);

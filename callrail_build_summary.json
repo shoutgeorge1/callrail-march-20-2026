@@ -1,311 +1,115 @@
 {
-  "generated_at": "2026-03-26T18:20:32.304Z",
+  "generated_at": "2026-04-07T20:35:45.994Z",
   "bucket_policy": "calendar_month_from_call_timestamps_only",
   "unknown_month_call_count": 0,
   "timestamp_coverage_pct": 100,
-  "preferred_timestamp_min_iso": "2026-01-26T17:02:42.483Z",
-  "preferred_timestamp_max_iso": "2026-03-26T16:34:47.583Z",
-  "date_range_display": "Jan 26, 2026 – Mar 26, 2026",
-  "current_month_key": "2026-03",
-  "calls_this_month": 653,
-  "qualified_leads_estimate": 181,
-  "prior_month_reconciled": true,
-  "prior_month_key": "2026-02",
-  "calls_prior_month": 382,
-  "qualified_prior_estimate": 87,
+  "preferred_timestamp_min_iso": "2026-04-06T16:38:34.000Z",
+  "preferred_timestamp_max_iso": "2026-04-07T20:19:45.126Z",
+  "date_range_display": "Apr 6, 2026 – Apr 7, 2026",
+  "current_month_key": "2026-04",
+  "calls_this_month": 100,
+  "qualified_leads_estimate": 21,
+  "prior_month_reconciled": false,
+  "prior_month_key": null,
+  "calls_prior_month": null,
+  "qualified_prior_estimate": null,
   "sources_current_month": [
     {
-      "name": "Google Ads",
-      "calls": 281,
-      "qualified_estimate": 83
-    },
-    {
       "name": "Direct",
-      "calls": 136,
-      "qualified_estimate": 43
+      "calls": 30,
+      "qualified_estimate": 10
     },
     {
-      "name": "GMB (+ Multi Use Tracking Number)",
-      "calls": 72,
-      "qualified_estimate": 20
+      "name": "Google Ads",
+      "calls": 26,
+      "qualified_estimate": 8
     },
     {
-      "name": "AA Website & Blog",
-      "calls": 37,
-      "qualified_estimate": 4
-    },
-    {
-      "name": "Google My Business",
-      "calls": 27,
-      "qualified_estimate": 3
-    },
-    {
-      "name": "Website",
-      "calls": 21,
-      "qualified_estimate": 5
-    },
-    {
-      "name": "Yelp",
+      "name": "RSN (after-hour transfers to George's intake cell)",
       "calls": 14,
-      "qualified_estimate": 6
-    },
-    {
-      "name": "Legacy Phone Number",
-      "calls": 12,
-      "qualified_estimate": 3
-    },
-    {
-      "name": "Facebook",
-      "calls": 12,
-      "qualified_estimate": 3
+      "qualified_estimate": 0
     },
     {
       "name": "Google Organic",
       "calls": 9,
-      "qualified_estimate": 1
-    },
-    {
-      "name": "APEX CHAT",
-      "calls": 9,
       "qualified_estimate": 0
     },
-    {
-      "name": "Landing: 844-Inside-5",
-      "calls": 7,
-      "qualified_estimate": 3
-    },
-    {
-      "name": "Brand / Organic – Static (844-467-4335)",
-      "calls": 3,
-      "qualified_estimate": 3
-    },
-    {
-      "name": "APEX CHAT (CTL)",
-      "calls": 2,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "www.insideraccidentlawyers.com",
-      "calls": 2,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "Apex (after-hour transfers to Carlos)",
-      "calls": 2,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "Super Lawyers - Los Angeles",
-      "calls": 2,
-      "qualified_estimate": 2
-    },
-    {
-      "name": "Bing Organic",
-      "calls": 2,
-      "qualified_estimate": 2
-    },
-    {
-      "name": "Instagram",
-      "calls": 1,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "Super Lawyers",
-      "calls": 1,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "844-INSIDE-5",
-      "calls": 1,
-      "qualified_estimate": 0
-    }
-  ],
-  "sources_prior_month": [
     {
       "name": "GMB (+ Multi Use Tracking Number)",
-      "calls": 87,
-      "qualified_estimate": 18
-    },
-    {
-      "name": "Google Ads",
-      "calls": 85,
-      "qualified_estimate": 29
-    },
-    {
-      "name": "AA Website & Blog",
-      "calls": 39,
-      "qualified_estimate": 4
-    },
-    {
-      "name": "Google My Business",
-      "calls": 32,
-      "qualified_estimate": 8
+      "calls": 7,
+      "qualified_estimate": 0
     },
     {
       "name": "Website",
-      "calls": 20,
-      "qualified_estimate": 1
-    },
-    {
-      "name": "Brand / Organic – Static (844-467-4335)",
-      "calls": 17,
-      "qualified_estimate": 5
-    },
-    {
-      "name": "Yelp",
-      "calls": 15,
-      "qualified_estimate": 8
-    },
-    {
-      "name": "Direct",
-      "calls": 15,
-      "qualified_estimate": 1
-    },
-    {
-      "name": "Facebook",
-      "calls": 15,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "Legacy Phone Number",
-      "calls": 10,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "Super Lawyers",
-      "calls": 8,
-      "qualified_estimate": 3
-    },
-    {
-      "name": "Landing: 844-Inside-5",
-      "calls": 7,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "Google Organic",
-      "calls": 7,
-      "qualified_estimate": 4
-    },
-    {
-      "name": "844-INSIDE-5",
       "calls": 6,
+      "qualified_estimate": 1
+    },
+    {
+      "name": "Google My Business",
+      "calls": 5,
       "qualified_estimate": 2
     },
     {
-      "name": "Media Power",
-      "calls": 4,
-      "qualified_estimate": 3
-    },
-    {
-      "name": "APEX CHAT",
+      "name": "AA Website & Blog",
       "calls": 3,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "Targeted Mailers",
-      "calls": 2,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "Bing Organic",
-      "calls": 2,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "APEX CHAT (CTL)",
-      "calls": 1,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "syndicatedsearch.goog",
-      "calls": 1,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "Merch",
-      "calls": 1,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "Yahoo Organic",
-      "calls": 1,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "Super Lawyers - Los Angeles",
-      "calls": 1,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "insideraccidentlawyers.com",
-      "calls": 1,
-      "qualified_estimate": 0
-    },
-    {
-      "name": "SearchGPT",
-      "calls": 1,
-      "qualified_estimate": 1
-    },
-    {
-      "name": "Outdoor",
-      "calls": 1,
       "qualified_estimate": 0
     }
   ],
+  "sources_prior_month": [],
   "top_sources": [
     {
-      "name": "Google Ads",
-      "calls": 281,
-      "qualified_estimate": 83
+      "name": "Direct",
+      "calls": 30,
+      "qualified_estimate": 10
     },
     {
-      "name": "Direct",
-      "calls": 136,
-      "qualified_estimate": 43
+      "name": "Google Ads",
+      "calls": 26,
+      "qualified_estimate": 8
+    },
+    {
+      "name": "RSN (after-hour transfers to George's intake cell)",
+      "calls": 14,
+      "qualified_estimate": 0
+    },
+    {
+      "name": "Google Organic",
+      "calls": 9,
+      "qualified_estimate": 0
     },
     {
       "name": "GMB (+ Multi Use Tracking Number)",
-      "calls": 72,
-      "qualified_estimate": 20
-    },
-    {
-      "name": "AA Website & Blog",
-      "calls": 37,
-      "qualified_estimate": 4
-    },
-    {
-      "name": "Google My Business",
-      "calls": 27,
-      "qualified_estimate": 3
+      "calls": 7,
+      "qualified_estimate": 0
     },
     {
       "name": "Website",
-      "calls": 21,
-      "qualified_estimate": 5
+      "calls": 6,
+      "qualified_estimate": 1
     },
     {
-      "name": "Yelp",
-      "calls": 14,
-      "qualified_estimate": 6
+      "name": "Google My Business",
+      "calls": 5,
+      "qualified_estimate": 2
     },
     {
-      "name": "Legacy Phone Number",
-      "calls": 12,
-      "qualified_estimate": 3
+      "name": "AA Website & Blog",
+      "calls": 3,
+      "qualified_estimate": 0
     }
   ],
   "ingest_meta": {
-    "generated_at": "2026-03-26T18:06:58.956Z",
+    "generated_at": "2026-03-30T21:06:49.450Z",
     "date_range": {
-      "start_date": "2026-01-25",
-      "end_date": "2026-03-26"
+      "start_date": "2026-01-29",
+      "end_date": "2026-03-30"
     },
-    "total_calls_ingested": 1115,
+    "total_calls_ingested": 937,
     "timestamp_coverage_pct": 100,
-    "earliest_timestamp": "2026-01-26T17:02:42.483Z",
+    "earliest_timestamp": "2026-01-29T12:51:51.643Z",
     "latest_timestamp": "2026-03-26T16:34:47.583Z",
-    "records_timestamp_valid_strict": 1115,
-    "record_build_errors": 0,
-    "total_calls_listed_unique": 1115
+    "records_timestamp_valid_strict": 937,
+    "record_build_errors": 228,
+    "total_calls_listed_unique": 1165
   }
 }

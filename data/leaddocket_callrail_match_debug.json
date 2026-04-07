@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-04-07T19:03:08.606Z",
+  "generated_at": "2026-04-07T20:37:02.880Z",
   "inputs": {
     "calls_path": "C:\\Users\\georgea\\CallRail API-Lead Docket Signal\\callrail_scored_calls.json",
     "leads_path": "C:\\Users\\georgea\\CallRail API-Lead Docket Signal\\data\\leaddocket_cases_clean.json",
-    "calls_considered": 124,
+    "calls_considered": 100,
     "unique_leads_considered": 100
   },
   "attempts": [
