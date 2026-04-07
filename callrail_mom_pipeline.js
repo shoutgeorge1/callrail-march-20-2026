@@ -1,14 +1,14 @@
 /**
- * Month buckets → scored files, aggregates, chart JSON, latest + combined export.
- * Reads: callrail_transcripts_last60days.json
+ * Month buckets from real timestamps only. month_key "unknown" when undated.
+ * No synthetic splitting. Writes scored files, summary, trends, callrail_build_summary.json
  */
 const fs = require("fs");
 const path = require("path");
 const {
   scoreOneRecord,
   parseMonthKeyFromRecord,
-  syntheticMonthKey,
-  normalizeSourceBucket,
+  getPreferredTimestamp,
+  hasValidTimestampRecord,
   WASTE_TYPES,
   OPPORTUNITY_THRESHOLD,
   SWITCH_THRESHOLD,
@@ -16,14 +16,17 @@ const {
 
 const ROOT = __dirname;
 const INPUT = path.join(ROOT, "callrail_transcripts_last60days.json");
+const INGEST_META = path.join(ROOT, "callrail_ingest_meta.json");
 const OUT_SUMMARY = path.join(ROOT, "callrail_month_summary.json");
 const OUT_LATEST = path.join(ROOT, "callrail_scored_calls_latest.json");
 const OUT_COMBINED = path.join(ROOT, "callrail_scored_calls.json");
+const OUT_BUILD_SUMMARY = path.join(ROOT, "callrail_build_summary.json");
 const OUT_SOURCE_TREND = path.join(ROOT, "source_mix_trend.json");
 const OUT_OPP_TREND = path.join(ROOT, "opportunity_rate_trend.json");
 const OUT_DUR_TREND = path.join(ROOT, "duration_trend.json");
 
 const BUCKETS = ["google_ads", "gmb", "direct", "chat", "referral", "unknown"];
+const UNKNOWN_KEY = "unknown";
 
 function loadTranscripts() {
   try {
@@ -32,6 +35,15 @@ function loadTranscripts() {
     return Array.isArray(data) ? data : [];
   } catch {
     return [];
+  }
+}
+
+function loadIngestMeta() {
+  try {
+    const raw = fs.readFileSync(INGEST_META, { encoding: "utf8", flag: "r" });
+    return JSON.parse(raw);
+  } catch {
+    return null;
   }
 }
 
@@ -81,13 +93,57 @@ function aggregateMonth(calls) {
 }
 
 function monthFileName(key) {
+  if (key === UNKNOWN_KEY) return path.join(ROOT, "callrail_scored_calls_unknown.json");
   const [y, m] = key.split("-");
   return path.join(ROOT, `callrail_scored_calls_${y}_${m}.json`);
 }
 
+function sortMonthKeys(keys) {
+  const real = keys.filter((k) => k !== UNKNOWN_KEY && /^\d{4}-\d{2}$/.test(k));
+  real.sort();
+  const out = [...real];
+  if (keys.includes(UNKNOWN_KEY)) out.push(UNKNOWN_KEY);
+  return out;
+}
+
+function formatUsDate(iso) {
+  if (!iso) return null;
+  const ms = Date.parse(iso);
+  if (Number.isNaN(ms)) return null;
+  const d = new Date(ms);
+  const mon = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ][d.getMonth()];
+  return `${mon} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+function aggregateRawSources(calls) {
+  const map = new Map();
+  for (const c of calls) {
+    const name = c.source || "(no source)";
+    if (!map.has(name)) map.set(name, { calls: 0, qualified_estimate: 0 });
+    const o = map.get(name);
+    o.calls++;
+    if (isOpportunityCall(c)) o.qualified_estimate++;
+  }
+  return [...map.entries()]
+    .map(([name, v]) => ({ name, calls: v.calls, qualified_estimate: v.qualified_estimate }))
+    .sort((a, b) => b.calls - a.calls);
+}
+
 function main() {
   const rows = loadTranscripts();
-  const endDate = new Date();
 
   if (!rows.length) {
     fs.writeFileSync(OUT_COMBINED, "[]", "utf8");
@@ -96,53 +152,25 @@ function main() {
     fs.writeFileSync(OUT_SOURCE_TREND, "[]", "utf8");
     fs.writeFileSync(OUT_OPP_TREND, "[]", "utf8");
     fs.writeFileSync(OUT_DUR_TREND, "[]", "utf8");
+    fs.writeFileSync(OUT_BUILD_SUMMARY, JSON.stringify({ error: "empty_input" }, null, 2), "utf8");
     console.log("callrail_mom_pipeline: empty input, wrote empty outputs.");
     return;
   }
 
-  let dated = 0;
-  for (let j = 0; j < rows.length; j++) {
-    if (rows[j] && parseMonthKeyFromRecord(rows[j])) dated++;
-  }
-  const useSynthetic = dated < Math.max(5, Math.floor(rows.length * 0.05));
-
   const byMonth = {};
-  const undated = [];
   for (let k = 0; k < rows.length; k++) {
     const r = rows[k];
     if (!r || typeof r !== "object") continue;
-    let mk = parseMonthKeyFromRecord(r);
-    if (mk == null) {
-      if (useSynthetic) mk = syntheticMonthKey(k, rows.length, endDate);
-      else {
-        undated.push(r);
-        continue;
-      }
-    }
+    const mk = parseMonthKeyFromRecord(r) || UNKNOWN_KEY;
     if (!byMonth[mk]) byMonth[mk] = [];
     byMonth[mk].push(r);
   }
 
-  let monthKeys = Object.keys(byMonth).sort();
-  if (!useSynthetic && undated.length) {
-    if (monthKeys.length) {
-      const target = monthKeys[monthKeys.length - 1];
-      byMonth[target] = (byMonth[target] || []).concat(undated);
-    } else {
-      for (let u = 0; u < undated.length; u++) {
-        const mk = syntheticMonthKey(u, undated.length, endDate);
-        if (!byMonth[mk]) byMonth[mk] = [];
-        byMonth[mk].push(undated[u]);
-      }
-      monthKeys = Object.keys(byMonth).sort();
-    }
-  }
+  let monthKeys = sortMonthKeys(Object.keys(byMonth));
 
   if (monthKeys.length === 0) {
-    const valid = rows.filter((x) => x && typeof x === "object");
-    const mk = syntheticMonthKey(0, Math.max(1, valid.length), endDate);
-    byMonth[mk] = valid;
-    monthKeys = Object.keys(byMonth).sort();
+    console.error("callrail_mom_pipeline: no month buckets (unexpected).");
+    return;
   }
 
   const summary = {};
@@ -168,16 +196,23 @@ function main() {
     summary[mk] = aggregateMonth(scored);
   }
 
-  fs.writeFileSync(OUT_SUMMARY, JSON.stringify(summary, null, 2), "utf8");
+  monthKeys = sortMonthKeys(Object.keys(summary));
+  const realKeys = monthKeys.filter((k) => k !== UNKNOWN_KEY && /^\d{4}-\d{2}$/.test(k));
+  const latestRealKey = realKeys.length ? realKeys[realKeys.length - 1] : null;
+  const latestKey = latestRealKey || (monthKeys.includes(UNKNOWN_KEY) ? UNKNOWN_KEY : monthKeys[monthKeys.length - 1]);
+  const priorRealKey = realKeys.length >= 2 ? realKeys[realKeys.length - 2] : null;
+  const priorMonthReconciled = priorRealKey != null;
 
-  const latestKey = monthKeys.length ? monthKeys[monthKeys.length - 1] : null;
   const latestCalls = latestKey && scoredByMonth[latestKey] ? scoredByMonth[latestKey] : [];
-  fs.writeFileSync(OUT_LATEST, JSON.stringify(latestCalls, null, 2), "utf8");
+  const priorCalls = priorRealKey && scoredByMonth[priorRealKey] ? scoredByMonth[priorRealKey] : [];
 
   const combined = [];
   for (const mk of monthKeys) {
     if (scoredByMonth[mk]) combined.push(...scoredByMonth[mk]);
   }
+
+  fs.writeFileSync(OUT_SUMMARY, JSON.stringify(summary, null, 2), "utf8");
+  fs.writeFileSync(OUT_LATEST, JSON.stringify(latestCalls, null, 2), "utf8");
   fs.writeFileSync(OUT_COMBINED, JSON.stringify(combined, null, 2), "utf8");
 
   const sourceMixTrend = [];
@@ -185,6 +220,7 @@ function main() {
   const durTrend = [];
 
   for (const mk of monthKeys) {
+    if (mk === UNKNOWN_KEY) continue;
     const agg = summary[mk];
     if (!agg) continue;
     const row = { month: mk, total: agg.total_calls };
@@ -208,16 +244,86 @@ function main() {
   fs.writeFileSync(OUT_OPP_TREND, JSON.stringify(oppRateTrend, null, 2), "utf8");
   fs.writeFileSync(OUT_DUR_TREND, JSON.stringify(durTrend, null, 2), "utf8");
 
-  const last = monthKeys.length ? summary[monthKeys[monthKeys.length - 1]] : null;
+  const tsMsList = [];
+  for (const c of combined) {
+    const t = getPreferredTimestamp(c);
+    if (t) {
+      const ms = Date.parse(t);
+      if (!Number.isNaN(ms)) tsMsList.push(ms);
+    }
+  }
+  tsMsList.sort((a, b) => a - b);
+  const minIso = tsMsList.length ? new Date(tsMsList[0]).toISOString() : null;
+  const maxIso = tsMsList.length ? new Date(tsMsList[tsMsList.length - 1]).toISOString() : null;
+  const rangeDisplay =
+    minIso && maxIso ? `${formatUsDate(minIso)} – ${formatUsDate(maxIso)}` : "— (no parseable timestamps)";
+
+  const ingestMeta = loadIngestMeta();
+  const tsCoveragePct =
+    ingestMeta && ingestMeta.timestamp_coverage_pct != null
+      ? ingestMeta.timestamp_coverage_pct
+      : ingestMeta && ingestMeta.pct_valid_timestamp != null
+        ? ingestMeta.pct_valid_timestamp
+        : Math.round((100 * combined.filter(hasValidTimestampRecord).length) / Math.max(1, combined.length) * 10) / 10;
+
+  const unknownCount = summary[UNKNOWN_KEY] ? summary[UNKNOWN_KEY].total_calls : 0;
+  const curAgg = latestKey ? summary[latestKey] : null;
+  const callsThisMonth = curAgg ? curAgg.total_calls : 0;
+  const qualifiedEstimate = curAgg ? curAgg.opportunity_calls : 0;
+
+  const sourcesCurrent = aggregateRawSources(latestCalls);
+  const sourcesPrior = priorCalls.length ? aggregateRawSources(priorCalls) : [];
+  const topSources = sourcesCurrent.slice(0, 8);
+
+  const buildSummary = {
+    generated_at: new Date().toISOString(),
+    bucket_policy: "calendar_month_from_call_timestamps_only",
+    unknown_month_call_count: unknownCount,
+    timestamp_coverage_pct: tsCoveragePct,
+    preferred_timestamp_min_iso: minIso,
+    preferred_timestamp_max_iso: maxIso,
+    date_range_display: rangeDisplay,
+    current_month_key: latestKey,
+    calls_this_month: callsThisMonth,
+    qualified_leads_estimate: qualifiedEstimate,
+    prior_month_reconciled: priorMonthReconciled,
+    prior_month_key: priorRealKey,
+    calls_prior_month: priorMonthReconciled && summary[priorRealKey] ? summary[priorRealKey].total_calls : null,
+    qualified_prior_estimate:
+      priorMonthReconciled && summary[priorRealKey] ? summary[priorRealKey].opportunity_calls : null,
+    sources_current_month: sourcesCurrent,
+    sources_prior_month: priorMonthReconciled ? sourcesPrior : [],
+    top_sources: topSources,
+    ingest_meta: ingestMeta,
+  };
+
+  fs.writeFileSync(OUT_BUILD_SUMMARY, JSON.stringify(buildSummary, null, 2), "utf8");
+
   console.log("callrail_mom_pipeline");
   console.log("  months written:", monthKeys.filter((k) => summary[k]).join(", ") || "(none)");
-  console.log("  latest month:", latestKey || "—");
-  console.log("  combined scored:", combined.length + " calls");
-  if (last) {
-    console.log("  latest opportunity_rate:", last.opportunity_rate + "%");
-    console.log("  latest waste_share:", last.waste_share + "%");
+  console.log("  latest month file:", latestKey || "—");
+  console.log("  unknown (no date) calls:", unknownCount);
+  console.log("  combined scored:", combined.length);
+  if (curAgg) {
+    console.log("  latest injury-shaped / high-score count (estimate):", curAgg.opportunity_calls);
+    console.log("  latest transcript-modeled qualified share:", curAgg.opportunity_rate + "%");
   }
-  if (useSynthetic) console.log("  note: used synthetic month split (few real timestamps in transcripts)");
+
+  console.log("");
+  console.log("=== Build summary (dashboard + ops) ===");
+  console.log("  Calls this month (" + (latestKey || "—") + "):", callsThisMonth);
+  console.log("  Qualified leads estimate (transcript model):", qualifiedEstimate);
+  console.log("  Timestamp coverage % (ingest or scored):", tsCoveragePct);
+  console.log("  Top sources by call count:");
+  for (let i = 0; i < Math.min(5, topSources.length); i++) {
+    const s = topSources[i];
+    console.log(`    ${i + 1}. ${s.name}: ${s.calls} calls (${s.qualified_estimate} injury-shaped est.)`);
+  }
+  if (!priorMonthReconciled) {
+    console.log("  Prior month: not yet reconciled (need 2+ calendar months with timestamps in range).");
+  } else {
+    console.log("  Prior month:", priorRealKey, "calls:", buildSummary.calls_prior_month);
+  }
 }
 
 main();

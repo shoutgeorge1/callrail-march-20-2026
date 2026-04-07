@@ -1,20 +1,20 @@
 [
   {
     "month": "2026-01",
-    "total_calls": 119,
-    "opportunity_calls": 33,
-    "opportunity_rate": 27.7
+    "total_calls": 80,
+    "opportunity_calls": 21,
+    "opportunity_rate": 26.3
   },
   {
     "month": "2026-02",
-    "total_calls": 455,
-    "opportunity_calls": 149,
-    "opportunity_rate": 32.7
+    "total_calls": 382,
+    "opportunity_calls": 87,
+    "opportunity_rate": 22.8
   },
   {
     "month": "2026-03",
-    "total_calls": 403,
-    "opportunity_calls": 106,
-    "opportunity_rate": 26.3
+    "total_calls": 653,
+    "opportunity_calls": 181,
+    "opportunity_rate": 27.7
   }
 ]

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Case Driver Report</title>
+<style>
+:root {
+  --text: #1c1917;
+  --muted: #57534e;
+  --line: #e7e5e4;
+  --accent: #0f766e;
+  --bg: #fafaf9;
+  --card: #ffffff;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.55;
+  margin: 0;
+  padding: 0 0 2.5rem;
+}
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 1.25rem; }
+header {
+  padding: 1.75rem 0 1rem;
+  border-bottom: 4px solid var(--accent);
+}
+h1 { font-size: 1.75rem; margin: 0 0 0.4rem; font-weight: 700; }
+.sub { color: var(--muted); font-size: 0.95rem; margin: 0; max-width: 48rem; }
+h2 {
+  font-size: 1.28rem;
+  color: var(--accent);
+  margin: 2rem 0 0.65rem;
+  font-weight: 700;
+}
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0 1.25rem;
+}
+.summary-cell {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.75rem 0.85rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+.summary-cell .label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+.summary-cell .value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  background: var(--card);
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  margin: 0.75rem 0 1.25rem;
+}
+table.data th, table.data td {
+  border: 1px solid var(--line);
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+}
+table.data th {
+  background: #f5f5f4;
+  font-weight: 600;
+}
+table.data tr:nth-child(even) td { background: #fafaf9; }
+table.data td.num, table.data th.num { text-align: right; font-variant-numeric: tabular-nums; }
+footer.meta-line {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+.err {
+  color: #b45309;
+  font-weight: 600;
+  margin: 1rem 0;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Case Driver Report</h1>
+    <p class="sub">Call → Lead → Signed (phone + time match)</p>
+  </header>
+
+  <h2>Summary</h2>
+  <div class="summary-grid" id="summary-grid"></div>
+  <p class="err" id="load-err" style="display:none;"></p>
+
+  <h2>What is working</h2>
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Source</th>
+        <th class="num">Calls</th>
+        <th class="num">Strict Matches</th>
+        <th class="num">Signed Cases</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-working"></tbody>
+  </table>
+
+  <h2>What is not working</h2>
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Source</th>
+        <th class="num">Calls</th>
+        <th class="num">Matched Leads</th>
+        <th class="num">Signed Cases</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-not-working"></tbody>
+  </table>
+
+  <h2>Proof</h2>
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Call Time</th>
+        <th>Phone</th>
+        <th>Source</th>
+        <th>Match Type</th>
+        <th class="num">Minutes to Lead</th>
+        <th>Lead Status</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-proof"></tbody>
+  </table>
+
+  <footer class="meta-line" id="footer-meta"></footer>
+</div>
+
+<script src="js/case-driver-snapshot.js"></script>
+<script>
+(function () {
+  var DATA_URL = "data/callrail_enriched.json";
+
+  function el(id) {
+    return document.getElementById(id);
+  }
+
+  function fmtNum(n) {
+    if (n == null || !Number.isFinite(Number(n))) return "0";
+    return String(Math.round(Number(n)));
+  }
+
+  function srcKey(c) {
+    var s = c.source;
+    return s && String(s).trim() ? String(s).trim() : "(no source)";
+  }
+
+  function aggregate(calls) {
+    var m = {};
+    for (var i = 0; i < calls.length; i++) {
+      var c = calls[i];
+      var k = srcKey(c);
+      if (!m[k]) m[k] = { source: k, calls: 0, strict: 0, signed: 0, matched: 0 };
+      var o = m[k];
+      o.calls++;
+      if (c.match_type === "strict") o.strict++;
+      if (c.signed_flag) o.signed++;
+      if (c.lead_created) o.matched++;
+    }
+    return m;
+  }
+
+  function matchRank(mt) {
+    if (mt === "strict") return 0;
+    if (mt === "24hr") return 1;
+    if (mt === "phone_only") return 2;
+    return 3;
+  }
+
+  function deltaVal(c) {
+    var d = c.match_delta_minutes;
+    if (d == null) return Infinity;
+    var n = Number(d);
+    return Number.isFinite(n) ? n : Infinity;
+  }
+
+  function formatCallTime(c) {
+    var raw = c.call_start_time || c.start_time || c.created_at;
+    if (!raw) return "—";
+    var t = Date.parse(raw);
+    if (!Number.isFinite(t)) return String(raw);
+    try {
+      return new Date(t).toLocaleString(undefined, {
+        dateStyle: "short",
+        timeStyle: "short",
+      });
+    } catch (e) {
+      return String(raw);
+    }
+  }
+
+  function formatMinutes(c) {
+    var d = c.match_delta_minutes;
+    if (d == null || !Number.isFinite(Number(d))) return "—";
+    return Number(d).toFixed(2);
+  }
+
+  function setSummaryStats(total, matched, signed, strictN) {
+    var box = el("summary-grid");
+    box.innerHTML = "";
+    var specs = [
+      { label: "Total Calls", value: total },
+      { label: "Matched Leads", value: matched },
+      { label: "Signed Cases", value: signed },
+      { label: "Strict Matches", value: strictN },
+    ];
+    for (var j = 0; j < specs.length; j++) {
+      var s = specs[j];
+      var cell = document.createElement("div");
+      cell.className = "summary-cell";
+      cell.innerHTML =
+        '<div class="label">' +
+        s.label +
+        '</div><div class="value">' +
+        fmtNum(s.value) +
+        "</div>";
+      box.appendChild(cell);
+    }
+  }
+
+  function setSummary(calls) {
+    var total = calls.length;
+    var matched = 0;
+    var signed = 0;
+    var strictN = 0;
+    for (var i = 0; i < calls.length; i++) {
+      var c = calls[i];
+      if (c.lead_created) matched++;
+      if (c.signed_flag) signed++;
+      if (c.match_type === "strict") strictN++;
+    }
+    setSummaryStats(total, matched, signed, strictN);
+  }
+
+  function fillTbody(tbodyId, rows, colspanEmptyMsg) {
+    var tbody = el(tbodyId);
+    tbody.innerHTML = "";
+    if (!rows.length) {
+      var r = document.createElement("tr");
+      var td = document.createElement("td");
+      td.colSpan = colspanEmptyMsg;
+      td.textContent = "—";
+      r.appendChild(td);
+      tbody.appendChild(r);
+      return;
+    }
+    for (var i = 0; i < rows.length; i++) {
+      tbody.appendChild(rows[i]);
+    }
+  }
+
+  function trWorking(row) {
+    var r = document.createElement("tr");
+    r.appendChild(tdText(row.source));
+    r.appendChild(tdNum(row.calls));
+    r.appendChild(tdNum(row.strict));
+    r.appendChild(tdNum(row.signed));
+    return r;
+  }
+
+  function trNotWorking(row) {
+    var r = document.createElement("tr");
+    r.appendChild(tdText(row.source));
+    r.appendChild(tdNum(row.calls));
+    r.appendChild(tdNum(row.matched));
+    r.appendChild(tdNum(row.signed));
+    return r;
+  }
+
+  function tdText(t) {
+    var d = document.createElement("td");
+    d.textContent = t == null ? "—" : String(t);
+    return d;
+  }
+
+  function tdNum(n) {
+    var d = document.createElement("td");
+    d.className = "num";
+    d.textContent = fmtNum(n);
+    return d;
+  }
+
+  function trProof(c) {
+    var r = document.createElement("tr");
+    r.appendChild(tdText(formatCallTime(c)));
+    r.appendChild(tdText(c.customer_phone_number || "—"));
+    r.appendChild(tdText(srcKey(c)));
+    r.appendChild(tdText(c.match_type || "—"));
+    var tm = document.createElement("td");
+    tm.className = "num";
+    tm.textContent = formatMinutes(c);
+    r.appendChild(tm);
+    r.appendChild(tdText(c.lead_status || "—"));
+    return r;
+  }
+
+  function buildRowsFromCalls(calls) {
+    var agg = aggregate(calls);
+    var list = Object.keys(agg).map(function (k) {
+      return agg[k];
+    });
+    var working = list
+      .filter(function (x) {
+        return x.signed > 0;
+      })
+      .sort(function (a, b) {
+        return b.signed - a.signed;
+      })
+      .map(trWorking);
+    var notWorking = list
+      .filter(function (x) {
+        return x.calls >= 10 && x.signed === 0;
+      })
+      .sort(function (a, b) {
+        return b.calls - a.calls;
+      })
+      .map(trNotWorking);
+    var proofRows = calls
+      .filter(function (c) {
+        return c.signed_flag === true;
+      })
+      .sort(function (a, b) {
+        var rr = matchRank(a.match_type) - matchRank(b.match_type);
+        if (rr !== 0) return rr;
+        return deltaVal(a) - deltaVal(b);
+      })
+      .slice(0, 15)
+      .map(trProof);
+    return { working: working, notWorking: notWorking, proofRows: proofRows };
+  }
+
+  function run(data) {
+    var calls = data && Array.isArray(data.calls) ? data.calls : [];
+    setSummary(calls);
+    var rows = buildRowsFromCalls(calls);
+    fillTbody("tbody-working", rows.working, 4);
+    fillTbody("tbody-not-working", rows.notWorking, 4);
+    fillTbody("tbody-proof", rows.proofRows, 6);
+    var foot = el("footer-meta");
+    var line = "Live: data/callrail_enriched.json";
+    if (data && data.generated_at) line += " · enriched_at " + data.generated_at;
+    foot.textContent = line;
+  }
+
+  function runFromSnapshot(snap, reason) {
+    if (!snap || !snap.summary) return false;
+    var s = snap.summary;
+    setSummaryStats(
+      s.total_calls,
+      s.matched_leads,
+      s.signed_cases,
+      s.strict_matches
+    );
+    var working = (snap.working || []).map(trWorking);
+    var notWorking = (snap.not_working || []).map(trNotWorking);
+    var proofRows = (snap.proof_calls || []).map(trProof);
+    fillTbody("tbody-working", working, 4);
+    fillTbody("tbody-not-working", notWorking, 4);
+    fillTbody("tbody-proof", proofRows, 6);
+    var parts = [
+      "Embedded snapshot (" + (snap.bundled_from || "callrail_enriched") + ")",
+    ];
+    if (snap.enriched_generated_at) parts.push("enriched " + snap.enriched_generated_at);
+    parts.push("snapshot " + (snap.built_at || ""));
+    if (s.calls_with_customer_phone != null) {
+      parts.push("calls w/ customer phone: " + fmtNum(s.calls_with_customer_phone));
+    }
+    if (reason) parts.push(reason);
+    el("footer-meta").textContent = parts.join(" · ");
+    return true;
+  }
+
+  function clearErr() {
+    var e = el("load-err");
+    e.style.display = "none";
+    e.textContent = "";
+  }
+
+  function showErr(msg) {
+    var e = el("load-err");
+    e.style.display = "block";
+    e.textContent = msg;
+    setSummaryStats(0, 0, 0, 0);
+    fillTbody("tbody-working", [], 4);
+    fillTbody("tbody-not-working", [], 4);
+    fillTbody("tbody-proof", [], 6);
+    el("footer-meta").textContent = "";
+  }
+
+  fetch(DATA_URL)
+    .then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    })
+    .then(function (data) {
+      clearErr();
+      run(data);
+    })
+    .catch(function () {
+      if (runFromSnapshot(window.CASE_DRIVER_SNAPSHOT, "opened as file or fetch blocked — refresh snapshot after enrich")) {
+        clearErr();
+        return;
+      }
+      showErr(
+        "Could not load data/callrail_enriched.json and no embedded snapshot. Run: npm run report:case-driver"
+      );
+    });
+})();
+</script>
+</body>
+</html>

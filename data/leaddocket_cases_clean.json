@@ -1,0 +1,802 @@
+[
+  {
+    "case_id": "su:3",
+    "signed_date": "2026-04-06T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Employee Referrals",
+    "full_name": "Rhonda Soria",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:4",
+    "signed_date": "2026-04-06T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "IAL Paid Marketing PPC (English)",
+    "full_name": "Terry Borders",
+    "case_type": "Other"
+  },
+  {
+    "case_id": "su:5",
+    "signed_date": "2026-04-03T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral - Farahi Law Firm",
+    "full_name": "Eva Ines Rojas",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:6",
+    "signed_date": "2026-04-03T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral - Farahi Law Firm",
+    "full_name": "Maricruz Fuentes",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:7",
+    "signed_date": "2026-04-03T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "IAL Paid Marketing PPC (English)",
+    "full_name": "Lolita Locklin",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:8",
+    "signed_date": "2026-04-02T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS",
+    "full_name": "Rosemarie Sanchez",
+    "case_type": "Other"
+  },
+  {
+    "case_id": "su:9",
+    "signed_date": "2026-04-02T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral - Seaton Tsai, Esq.",
+    "full_name": "Eun Shin",
+    "case_type": "Other"
+  },
+  {
+    "case_id": "su:10",
+    "signed_date": "2026-04-02T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS",
+    "full_name": "Aizek Xyniir",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:11",
+    "signed_date": "2026-04-02T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS",
+    "full_name": "Juan Balderas",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:12",
+    "signed_date": "2026-04-02T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Employee Referrals",
+    "full_name": "Perla OBO Ella Hemminger",
+    "case_type": "Other"
+  },
+  {
+    "case_id": "su:13",
+    "signed_date": "2026-04-01T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS",
+    "full_name": "Jennifer Ponce",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:14",
+    "signed_date": "2026-04-01T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS",
+    "full_name": "Jazmin Todd OBO Aunisty Todd",
+    "case_type": "Other"
+  },
+  {
+    "case_id": "su:15",
+    "signed_date": "2026-03-30T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "IAL Paid Marketing PPC (English)",
+    "full_name": "April Sigala",
+    "case_type": "Other"
+  },
+  {
+    "case_id": "su:16",
+    "signed_date": "2026-03-30T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS",
+    "full_name": "Marianne Manzano",
+    "case_type": "Slip &amp; Fall"
+  },
+  {
+    "case_id": "su:17",
+    "signed_date": "2026-03-30T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Ref Wilshire Law Firm - HAS COST",
+    "full_name": "Heaven Washington",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:18",
+    "signed_date": "2026-03-27T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Frank Germinaro Jr.",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:19",
+    "signed_date": "2026-03-25T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS",
+    "full_name": "Lorna Rubi",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:20",
+    "signed_date": "2026-03-25T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Repeat Client",
+    "full_name": "Juan Saldana",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:21",
+    "signed_date": "2026-03-25T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Atty Ref - Landver Law Personal Injury Attorneys",
+    "full_name": "Kimble Christian",
+    "case_type": "Other"
+  },
+  {
+    "case_id": "su:22",
+    "signed_date": "2026-03-25T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Jaylin Blannon",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:23",
+    "signed_date": "2026-03-25T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS",
+    "full_name": "Jeremy Starkey",
+    "case_type": "Slip &amp; Fall"
+  },
+  {
+    "case_id": "su:24",
+    "signed_date": "2026-03-25T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Ref Wilshire Law Firm - HAS COST",
+    "full_name": "Kerrilynne Basman",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:25",
+    "signed_date": "2026-03-25T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "IAL Paid Marketing PPC (English)",
+    "full_name": "Ferris Dean",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:26",
+    "signed_date": "2026-03-24T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google Search",
+    "full_name": "Isabel Zueger",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:27",
+    "signed_date": "2026-03-20T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Website",
+    "full_name": "Shirley Bradley",
+    "case_type": "Other"
+  },
+  {
+    "case_id": "su:28",
+    "signed_date": "2026-03-19T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "IAL Paid Marketing PPC (English)",
+    "full_name": "Jeannette Bragg",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:29",
+    "signed_date": "2026-03-18T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "IAL Paid Marketing PPC (English)",
+    "full_name": "Pamela Campbell OBO Sharon Campbell",
+    "case_type": "Wrongful Death"
+  },
+  {
+    "case_id": "su:30",
+    "signed_date": "2026-03-17T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "IAL Paid Marketing PPC (English)",
+    "full_name": "Gregoria Mejia",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:31",
+    "signed_date": "2026-03-17T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral Wilshire Law Firm",
+    "full_name": "Mejia Marisol",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:32",
+    "signed_date": "2026-03-17T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google PPC - Los Angeles (Spanish)",
+    "full_name": "Elser Ramirez Reyes",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:33",
+    "signed_date": "2026-03-17T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Repeat Client",
+    "full_name": "Veronica Arana Alvarez MVA #3",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:34",
+    "signed_date": "2026-03-17T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Yelp Sponsored Ads",
+    "full_name": "Crystal Fernandez OBO Emmanuel Lopez",
+    "case_type": "Slip &amp; Fall"
+  },
+  {
+    "case_id": "su:35",
+    "signed_date": "2026-03-16T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral BD&amp;J",
+    "full_name": "Benjamin Mejia",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:36",
+    "signed_date": "2026-03-16T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google PPC - Los Angeles (Spanish)",
+    "full_name": "Emilson Israel Garcia Ponce",
+    "case_type": "Other"
+  },
+  {
+    "case_id": "su:37",
+    "signed_date": "2026-03-16T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Gloria Mendoza",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:38",
+    "signed_date": "2026-03-13T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Heather Griggs",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:39",
+    "signed_date": "2026-03-13T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral Wilshire Law Firm",
+    "full_name": "Tina Zayas",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:40",
+    "signed_date": "2026-03-11T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google My Business",
+    "full_name": "Zakiya Harris-Moore",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:41",
+    "signed_date": "2026-03-11T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral Wilshire Law Firm",
+    "full_name": "David Swan",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:42",
+    "signed_date": "2026-03-11T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Ref Wilshire Law Firm - HAS COST",
+    "full_name": "Rosalio Arias",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:43",
+    "signed_date": "2026-03-10T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Ref Wilshire Law Firm - HAS COST",
+    "full_name": "Kacie Killian",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:44",
+    "signed_date": "2026-03-10T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral Wilshire Law Firm",
+    "full_name": "Roselia Coroy-Lara",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:45",
+    "signed_date": "2026-03-10T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Employee Referrals",
+    "full_name": "Adriana Cary",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:46",
+    "signed_date": "2026-03-09T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Jonathan Thomas",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:47",
+    "signed_date": "2026-03-09T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google PPC - Los Angeles (Spanish)",
+    "full_name": "Juan Jose Castro Valiente",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:48",
+    "signed_date": "2026-03-09T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "IAL Paid Marketing PPC (English)",
+    "full_name": "Kashan Berry",
+    "case_type": "Slip &amp; Fall"
+  },
+  {
+    "case_id": "su:49",
+    "signed_date": "2026-03-09T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google PPC - Los Angeles (Spanish)",
+    "full_name": "Armando Olmos Aguilera",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:50",
+    "signed_date": "2026-03-09T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral Wilshire Law Firm",
+    "full_name": "Kenneth Rainer",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:51",
+    "signed_date": "2026-03-09T07:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google PPC - San Bernardino/Riverside (Spanish)",
+    "full_name": "Nathan Arreola",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:52",
+    "signed_date": "2026-03-05T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Ref Wilshire Law Firm - HAS COST",
+    "full_name": "Rocio Moreno-Oliveros",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:53",
+    "signed_date": "2026-03-05T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google LSA",
+    "full_name": "Tiffany Smith",
+    "case_type": "Other"
+  },
+  {
+    "case_id": "su:54",
+    "signed_date": "2026-03-05T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google Search",
+    "full_name": "Vidal Israel Palacios",
+    "case_type": "Other"
+  },
+  {
+    "case_id": "su:55",
+    "signed_date": "2026-03-05T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Client Referral",
+    "full_name": "Aimee Bautista",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:56",
+    "signed_date": "2026-03-05T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Client Referral",
+    "full_name": "Luis Leyton Cubillos",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:57",
+    "signed_date": "2026-03-05T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google Search",
+    "full_name": "Yaritza Flores",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:58",
+    "signed_date": "2026-03-04T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS",
+    "full_name": "Guadalupe Delgado Chacon",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:59",
+    "signed_date": "2026-03-04T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Su Pak",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:60",
+    "signed_date": "2026-03-04T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Ref Wilshire Law Firm - HAS COST",
+    "full_name": "Jennifer Kohr",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:61",
+    "signed_date": "2026-03-03T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS",
+    "full_name": "Helder Rivera",
+    "case_type": "Other"
+  },
+  {
+    "case_id": "su:62",
+    "signed_date": "2026-03-03T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Brandi Callaham",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:63",
+    "signed_date": "2026-03-03T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Adonnis Hampton",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:64",
+    "signed_date": "2026-03-03T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google My Business",
+    "full_name": "Maya Atkins",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:65",
+    "signed_date": "2026-03-03T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google PPC - Los Angeles (Spanish)",
+    "full_name": "Wilmer Rafael Vasquez Puertas",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:66",
+    "signed_date": "2026-03-02T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Theodore Carman",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:67",
+    "signed_date": "2026-03-02T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Share",
+    "full_name": "Lisa Kao",
+    "case_type": "Slip &amp; Fall"
+  },
+  {
+    "case_id": "su:68",
+    "signed_date": "2026-03-02T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Ref Wilshire Law Firm - HAS COST",
+    "full_name": "MA D Felix Nevarez",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:69",
+    "signed_date": "2026-03-02T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google PPC - Los Angeles (Spanish)",
+    "full_name": "Manuel Alejandro Lopez Mena",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:70",
+    "signed_date": "2026-03-02T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google PPC - Orange County (Spanish)",
+    "full_name": "Maria Apolinar Espinoza",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:71",
+    "signed_date": "2026-02-27T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral Wilshire Law Firm",
+    "full_name": "Yonnie Gadberry",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:72",
+    "signed_date": "2026-02-27T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google PPC - Orange County (Spanish)",
+    "full_name": "Jorge David Perez Belteton",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:73",
+    "signed_date": "2026-02-27T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral Wilshire Law Firm",
+    "full_name": "Melissa Esparza",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:74",
+    "signed_date": "2026-02-26T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google PPC - Orange County (Spanish)",
+    "full_name": "Milindo Pena",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:75",
+    "signed_date": "2026-02-26T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Walk in",
+    "full_name": "Rosa Felix",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:76",
+    "signed_date": "2026-02-26T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google PPC - Orange County (Spanish)",
+    "full_name": "Emiliano Pena",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:77",
+    "signed_date": "2026-02-26T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral Wilshire Law Firm",
+    "full_name": "Aretha Jefferson",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:78",
+    "signed_date": "2026-02-26T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Deseri Gonzales",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:79",
+    "signed_date": "2026-02-25T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Ref Wilshire Law Firm - HAS COST",
+    "full_name": "Bahram Mostafiae",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:80",
+    "signed_date": "2026-02-25T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Trinity Murgia",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:81",
+    "signed_date": "2026-02-25T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google My Business",
+    "full_name": "Rashell Estefania DeLeon Robles",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:82",
+    "signed_date": "2026-02-25T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral Wilshire Law Firm",
+    "full_name": "Ranford Roberts",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:83",
+    "signed_date": "2026-02-25T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS",
+    "full_name": "Edwin Artemio Montes De Oca",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:84",
+    "signed_date": "2026-02-24T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral Wilshire Law Firm",
+    "full_name": "Ashveer Bajwa",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:85",
+    "signed_date": "2026-02-24T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral - RTM Law, APC",
+    "full_name": "Tiffanie Hairston",
+    "case_type": "Slip &amp; Fall"
+  },
+  {
+    "case_id": "su:86",
+    "signed_date": "2026-02-24T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Gabriel Matamoros",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:87",
+    "signed_date": "2026-02-23T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Yelp Sponsored Ads",
+    "full_name": "Brigitte Castro",
+    "case_type": "Slip &amp; Fall"
+  },
+  {
+    "case_id": "su:88",
+    "signed_date": "2026-02-23T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS",
+    "full_name": "Mary Swift",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:89",
+    "signed_date": "2026-02-23T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Gary Villanueva",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:90",
+    "signed_date": "2026-02-23T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "IAL Paid Marketing PPC (English)",
+    "full_name": "Jacquelyn Stevenson",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:91",
+    "signed_date": "2026-02-23T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Kevin Gonda",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:92",
+    "signed_date": "2026-02-23T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "IAL Paid Marketing PPC (English)",
+    "full_name": "Maximiliano Oyarzun Quintana",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:93",
+    "signed_date": "2026-02-20T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral BD&amp;J",
+    "full_name": "Edgar Fregoso",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:94",
+    "signed_date": "2026-02-20T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral Wilshire Law Firm",
+    "full_name": "Reggie Dark",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:95",
+    "signed_date": "2026-02-20T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Repeat Client",
+    "full_name": "Chris Legrande MVA#2",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:96",
+    "signed_date": "2026-02-19T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral BD&amp;J",
+    "full_name": "Edward Estrada",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:97",
+    "signed_date": "2026-02-19T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Julio Martinez",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:98",
+    "signed_date": "2026-02-18T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Cindy Flores + Angela Flores",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:99",
+    "signed_date": "2026-02-18T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral Wilshire Law Firm",
+    "full_name": "Jon Casillas",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:100",
+    "signed_date": "2026-02-18T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral Wilshire Law Firm",
+    "full_name": "Tonia Jones",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:101",
+    "signed_date": "2026-02-17T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Attorney Referral ACCIDENT GUYS - LIT FILES",
+    "full_name": "Ariana Marquez",
+    "case_type": "MVA"
+  },
+  {
+    "case_id": "su:102",
+    "signed_date": "2026-02-17T08:00:00.000Z",
+    "primary_phone": null,
+    "marketing_source": "Google My Business",
+    "full_name": "Tameca Reed",
+    "case_type": "MVA"
+  }
+]

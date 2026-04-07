@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-03-30T21:06:49.450Z",
+  "date_range": {
+    "start_date": "2026-01-29",
+    "end_date": "2026-03-30"
+  },
+  "total_calls_ingested": 937,
+  "timestamp_coverage_pct": 100,
+  "earliest_timestamp": "2026-01-29T12:51:51.643Z",
+  "latest_timestamp": "2026-03-26T16:34:47.583Z",
+  "records_timestamp_valid_strict": 937,
+  "record_build_errors": 228,
+  "total_calls_listed_unique": 1165
+}

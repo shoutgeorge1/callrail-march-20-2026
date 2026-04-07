@@ -8,6 +8,7 @@
     "ingest": "node callrail_transcript_ingest.js",
     "score:calls": "node score_callrail_pipeline.js",
     "intel:build": "node callrail_mom_pipeline.js",
+    "build:ld-clean": "node build_leaddocket_cases_clean.js",
     "enrich:leads": "node enrich_callrail_leaddocket.js && node build-case-driver-snapshot.js",
     "report:signed": "node signed_validation_export.js",
     "report:case-driver": "node build-case-driver-snapshot.js",

@@ -1,2 +1,30 @@
 call_id,customer_phone_number,call_start_time,source,duration,match_type,match_delta_minutes,lead_status,case_type,marketing_source
-CAL019d4022510970e4b33b097fae3558ab,+13239825028,2026-03-30T12:04:43.856-07:00,Direct,1850,strict,3.27,signed up,Med Spa,IAL Paid Marketing PPC (English)
+,+19497064521,2026-03-18T17:28:06.314-07:00,Google Ads,120,strict,-92.89,signed up,MVA,IAL Paid Marketing PPC (English)
+,+17144682141,2026-02-26T06:27:38.955-08:00,Google Ads,1877,strict,-77.35,signed up,MVA,Google PPC - Orange County (Spanish)
+,+13235422995,2026-03-12T07:57:38.350-07:00,Direct,1141,strict,-28.36,signed up,Slip & Fall,Yelp Sponsored Ads
+,+16282008056,2026-03-02T08:47:15.576-08:00,Google Ads,2732,strict,-21.74,signed up,MVA,Google PPC - Los Angeles (Spanish)
+,+15624886970,2026-02-26T10:24:55.226-08:00,Google Ads,1343,strict,-4.08,signed up,MVA,Google PPC - Orange County (Spanish)
+,+13239825028,2026-03-30T12:04:43.856-07:00,Direct,1850,strict,-3.27,signed up,Med Spa,IAL Paid Marketing PPC (English)
+,+17605961173,2026-03-02T14:42:59.247-08:00,Google Organic,931,strict,-3.01,signed up,MVA,Google My Business
+,+13235042684,2026-02-11T13:23:04.305-08:00,GMB (+ Multi Use Tracking Number),1736,strict,-2.93,signed up,MVA,Client Referral
+,+16265283032,2026-03-04T15:36:28.133-08:00,Direct,564,strict,-2.53,signed up,Other,Google Search
+,+13236363182,2026-03-09T10:47:46.567-07:00,Google Ads,891,strict,-2.22,signed up,MVA,Google PPC - Los Angeles (Spanish)
+,+16614566312,2026-02-23T09:11:54.947-08:00,Google Ads,654,strict,-2.08,signed up,MVA,IAL Paid Marketing PPC (English)
+,+12133176992,2026-03-17T11:54:57.558-07:00,Google Ads,1547,strict,-2.04,signed up,MVA,IAL Paid Marketing PPC (English)
+,+16308547747,2026-02-06T14:22:58.749-08:00,Yelp,1189,strict,-2.02,signed up,MVA,Google My Business
+,+13236135682,2026-02-25T13:10:00.796-08:00,GMB (+ Multi Use Tracking Number),3049,strict,-1.99,signed up,MVA,Google My Business
+,+16265223260,2026-03-16T12:14:06.142-07:00,Google Ads,677,strict,-1.9,signed up,MVA,IAL Paid Marketing PPC (English)
+,+13102188185,2026-03-05T11:40:10.902-08:00,GMB (+ Multi Use Tracking Number),1975,strict,-1.82,signed up,MVA,Client Referral
+,+13234126029,2026-03-02T16:21:28.780-08:00,Google Ads,646,strict,-1.52,signed up,MVA,Google PPC - Los Angeles (Spanish)
+,+17149553039,2026-02-26T11:02:32.314-08:00,Google Ads,1713,strict,-1.46,signed up,MVA,Google PPC - Orange County (Spanish)
+,+12136100519,2026-03-11T11:49:37.424-07:00,Google Ads,1103,strict,-1.38,signed up,MVA,Google PPC - Los Angeles (Spanish)
+,+18056071722,2026-03-04T09:53:41.473-08:00,Landing: 844-Inside-5,2071,strict,-1.31,signed up,MVA,Google Search
+,+16694549912,2026-03-02T15:02:47.474-08:00,Yelp,1299,strict,-1.21,signed up,MVA,Client Referral
+,+16056105438,2026-03-06T13:21:53.052-08:00,GMB (+ Multi Use Tracking Number),674,strict,-1.12,signed up,MVA,Google Search
+,+16266243380,2026-03-09T12:26:44.370-07:00,Google Ads,487,strict,181.74,signed up,MVA,Google PPC - San Bernardino/Riverside (Spanish)
+,+13239263662,2026-02-22T10:28:35.750-08:00,Google Ads,265,24hr,-1309.4,signed up,MVA,IAL Paid Marketing PPC (English)
+,+14242210965,2026-03-17T10:55:56.161-07:00,Google Ads,33,24hr,-1285.06,signed up,Wrongful Death,IAL Paid Marketing PPC (English)
+,+15627177808,2026-03-08T14:13:10.793-07:00,Google Ads,548,24hr,-1262.82,signed up,Slip & Fall,IAL Paid Marketing PPC (English)
+,+15109549166,2026-03-10T17:47:09.029-07:00,GMB (+ Multi Use Tracking Number),774,24hr,-995.85,signed up,MVA,Google My Business
+,+12132120200,2026-03-04T07:23:36.703-08:00,Landing: 844-Inside-5,502,24hr,927.61,signed up,MVA,Attorney Referral ACCIDENT GUYS - LIT FILES
+,+18187242070,2026-03-07T14:58:40.302-08:00,Google Ads,1360,phone_only,-2578.33,signed up,MVA,Google PPC - Los Angeles (Spanish)

@@ -35,7 +35,9 @@ function main() {
   fs.writeFileSync(OUTPUT, JSON.stringify(scored, null, 2), "utf8");
 
   const n = scored.length;
-  const opportunity_calls = scored.filter((r) => r.opportunity_score >= OPPORTUNITY_THRESHOLD).length;
+  const opportunity_calls = scored.filter(
+    (r) => r.call_type === "true_pi_opportunity" || r.opportunity_score >= OPPORTUNITY_THRESHOLD
+  ).length;
   const waste_calls = scored.filter((r) => WASTE_TYPES.includes(r.call_type)).length;
   const switch_signal_calls = scored.filter((r) => r.attorney_switch_probability >= SWITCH_THRESHOLD).length;
 

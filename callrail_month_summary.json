@@ -1,96 +1,24 @@
 {
   "2026-01": {
-    "total_calls": 119,
-    "opportunity_calls": 33,
-    "opportunity_rate": 27.7,
-    "waste_calls": 13,
-    "waste_share": 10.9,
+    "total_calls": 80,
+    "opportunity_calls": 21,
+    "opportunity_rate": 26.3,
+    "waste_calls": 2,
+    "waste_share": 2.5,
     "switch_signal_calls": 0,
-    "median_duration": 180,
+    "median_duration": 121.5,
     "opportunity_by_source": {
       "google_ads": {
-        "total": 49,
-        "opportunity_count": 15
-      },
-      "gmb": {
-        "total": 12,
+        "total": 13,
         "opportunity_count": 4
       },
-      "direct": {
-        "total": 37,
-        "opportunity_count": 11
-      },
-      "chat": {
-        "total": 2,
-        "opportunity_count": 0
-      },
-      "referral": {
-        "total": 0,
-        "opportunity_count": 0
-      },
-      "unknown": {
-        "total": 19,
-        "opportunity_count": 3
-      }
-    },
-    "hidden_opportunity_count": 12
-  },
-  "2026-02": {
-    "total_calls": 455,
-    "opportunity_calls": 149,
-    "opportunity_rate": 32.7,
-    "waste_calls": 49,
-    "waste_share": 10.8,
-    "switch_signal_calls": 2,
-    "median_duration": 200,
-    "opportunity_by_source": {
-      "google_ads": {
-        "total": 191,
-        "opportunity_count": 69
-      },
       "gmb": {
-        "total": 52,
-        "opportunity_count": 15
-      },
-      "direct": {
-        "total": 93,
-        "opportunity_count": 32
-      },
-      "chat": {
-        "total": 5,
+        "total": 1,
         "opportunity_count": 0
       },
-      "referral": {
-        "total": 0,
-        "opportunity_count": 0
-      },
-      "unknown": {
-        "total": 114,
-        "opportunity_count": 33
-      }
-    },
-    "hidden_opportunity_count": 57
-  },
-  "2026-03": {
-    "total_calls": 403,
-    "opportunity_calls": 106,
-    "opportunity_rate": 26.3,
-    "waste_calls": 24,
-    "waste_share": 6,
-    "switch_signal_calls": 0,
-    "median_duration": 153,
-    "opportunity_by_source": {
-      "google_ads": {
-        "total": 85,
-        "opportunity_count": 32
-      },
-      "gmb": {
-        "total": 83,
-        "opportunity_count": 18
-      },
       "direct": {
-        "total": 19,
-        "opportunity_count": 3
+        "total": 4,
+        "opportunity_count": 2
       },
       "chat": {
         "total": 1,
@@ -101,10 +29,82 @@
         "opportunity_count": 0
       },
       "unknown": {
-        "total": 215,
-        "opportunity_count": 53
+        "total": 61,
+        "opportunity_count": 15
       }
     },
-    "hidden_opportunity_count": 38
+    "hidden_opportunity_count": 7
+  },
+  "2026-02": {
+    "total_calls": 382,
+    "opportunity_calls": 87,
+    "opportunity_rate": 22.8,
+    "waste_calls": 22,
+    "waste_share": 5.8,
+    "switch_signal_calls": 0,
+    "median_duration": 141,
+    "opportunity_by_source": {
+      "google_ads": {
+        "total": 85,
+        "opportunity_count": 29
+      },
+      "gmb": {
+        "total": 87,
+        "opportunity_count": 18
+      },
+      "direct": {
+        "total": 15,
+        "opportunity_count": 1
+      },
+      "chat": {
+        "total": 4,
+        "opportunity_count": 0
+      },
+      "referral": {
+        "total": 0,
+        "opportunity_count": 0
+      },
+      "unknown": {
+        "total": 191,
+        "opportunity_count": 39
+      }
+    },
+    "hidden_opportunity_count": 31
+  },
+  "2026-03": {
+    "total_calls": 653,
+    "opportunity_calls": 181,
+    "opportunity_rate": 27.7,
+    "waste_calls": 62,
+    "waste_share": 9.5,
+    "switch_signal_calls": 2,
+    "median_duration": 155,
+    "opportunity_by_source": {
+      "google_ads": {
+        "total": 281,
+        "opportunity_count": 83
+      },
+      "gmb": {
+        "total": 72,
+        "opportunity_count": 20
+      },
+      "direct": {
+        "total": 136,
+        "opportunity_count": 43
+      },
+      "chat": {
+        "total": 13,
+        "opportunity_count": 0
+      },
+      "referral": {
+        "total": 0,
+        "opportunity_count": 0
+      },
+      "unknown": {
+        "total": 151,
+        "opportunity_count": 35
+      }
+    },
+    "hidden_opportunity_count": 69
   }
 }

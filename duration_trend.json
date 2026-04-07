@@ -1,14 +1,14 @@
 [
   {
     "month": "2026-01",
-    "median_duration_sec": 180
+    "median_duration_sec": 121.5
   },
   {
     "month": "2026-02",
-    "median_duration_sec": 200
+    "median_duration_sec": 141
   },
   {
     "month": "2026-03",
-    "median_duration_sec": 153
+    "median_duration_sec": 155
   }
 ]

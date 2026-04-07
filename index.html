@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Call quality & intake report</title>
+<title>CallRail Intake & Call Quality Report</title>
 <style>
 :root {
   --text: #1c1917;
@@ -155,17 +155,55 @@ footer.meta-line {
 
 <div class="wrap">
 <header>
-  <h1>Call quality &amp; intake report</h1>
-  <p class="sub">CallRail totals in <code>callrail_report_truth.json</code>. Transcript files support pattern notes only. Update the truth file when CallRail numbers change.</p>
+  <h1>CallRail Intake &amp; Call Quality Report</h1>
+  <p class="sub">CallRail intake and operational views, with Lead Docket attribution from matched calls (phone + time proximity to actual signed cases) where <code>data/callrail_enriched.json</code> is present.</p>
 </header>
+
+<h2>Executive Snapshot</h2>
+<div class="data-window" id="executive-summary"></div>
+
+<h2>Top Sources Producing Signed Cases</h2>
+<table class="data">
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th class="num">Calls</th>
+      <th class="num">Strict Matches</th>
+      <th class="num">24hr Matches</th>
+      <th class="num">Signed Cases</th>
+    </tr>
+  </thead>
+  <tbody id="tbody-top-sources-signed"></tbody>
+</table>
+<p class="section-note">Matched calls based on phone + time proximity to actual signed cases.</p>
+
+<h2>Verified Call → Case Examples</h2>
+<p class="section-note">These are real matched calls tied to signed cases. Spot check these to validate attribution.</p>
+<table class="data">
+  <thead>
+    <tr>
+      <th>Call start time</th>
+      <th>Customer phone</th>
+      <th>Source</th>
+      <th class="num">Duration</th>
+      <th>Match type</th>
+      <th class="num">Match Δ (min)</th>
+      <th>Lead status</th>
+      <th>Case type</th>
+    </tr>
+  </thead>
+  <tbody id="tbody-verified-signed-examples"></tbody>
+</table>
 
 <h2>Data Window</h2>
 <div class="data-window" id="data-window-block">
-  <p style="margin:0 0 0.35rem"><strong>Range:</strong> <span id="data-window-range">—</span></p>
-  <p style="margin:0 0 0.35rem"><strong>CallRail raw leads (this period):</strong> <span id="data-window-raw">—</span></p>
-  <p style="margin:0 0 0.35rem"><strong>CallRail qualified leads (this period):</strong> <span id="data-window-qualified">—</span></p>
-  <p style="margin:0 0 0.35rem"><strong>Transcript subset used for call-text patterns:</strong> <span id="data-window-transcript-n">—</span> calls</p>
-  <p style="margin:0"><strong>Count source:</strong> <span id="data-window-provenance">—</span></p>
+  <p style="margin:0 0 0.35rem"><strong>Date range analyzed:</strong> <span id="data-window-range">Not available</span></p>
+  <p style="margin:0 0 0.35rem"><strong>Total calls:</strong> <span id="data-window-raw">Not available</span></p>
+  <p style="margin:0 0 0.35rem"><strong>Calls with transcripts:</strong> <span id="data-window-transcript-n">Not available</span></p>
+  <p style="margin:0"><strong>Method:</strong> CallRail call data. Signed attribution uses <code>data/callrail_enriched.json</code> (phone + time proximity to Lead Docket). Other lead estimates use transcript coverage where available.</p>
+  <p style="margin:0.35rem 0 0; color:#57534e;">Transcript-based rows only cover calls with transcripts, so some counts may not match CallRail views exactly.</p>
+  <p style="display:none; margin:0"><span id="data-window-qualified">Not available</span><span id="data-window-provenance">Not available</span></p>
+  <p style="color:#b45309; font-weight:600; margin:0.35rem 0 0;" id="partial-month-warning"></p>
 </div>
 
 <h2 id="heading-prior-performance">Prior month performance</h2>
@@ -178,28 +216,31 @@ footer.meta-line {
 </table>
 
 <h2 id="heading-current-performance">Current month performance</h2>
-<p class="section-note">This period’s CallRail raw and qualified counts (source of truth for volume).</p>
+<p class="section-note">This period’s CallRail call totals. When <code>data/callrail_enriched.json</code> is built from Lead Docket, totals show matched leads and signed cases; otherwise transcript-based lead signals from the intel build.</p>
 <table class="data">
   <thead>
     <tr><th>Metric</th><th class="num">Value</th></tr>
   </thead>
   <tbody id="tbody-perf-current"></tbody>
 </table>
+<p class="section-note" id="march-performance-note">March produced both higher call volume and a higher transcript-based lead signal rate than February. That suggests volume increased without obvious deterioration in lead quality.</p>
 
 <h2>Month vs Month Change</h2>
-<p class="section-note">Compares this period to the prior period only when prior CallRail totals are on file. Not shown when prior month is not reconciled.</p>
+<p class="section-note">Compares this period to the prior period. If the prior month is partial, comparisons are directional only.</p>
+<p class="section-note">This section compares February and March call volume and transcript-based lead signals.</p>
 <table class="data">
   <thead>
     <tr>
       <th>Metric</th>
       <th class="num" id="th-mom-prior">Prior</th>
       <th class="num" id="th-mom-current">Current</th>
-      <th class="num">Δ</th>
-      <th class="num">% vs prior</th>
+      <th class="num">Change</th>
+      <th class="num">% change</th>
     </tr>
   </thead>
   <tbody id="tbody-mom"></tbody>
 </table>
+<p class="section-note" id="mom-partial-note" style="display:none; color:#b45309; font-weight:600;">Prior month data is incomplete; percentage comparisons may be misleading.</p>
 
 <div class="insight-aside">
   <strong>What changed vs last month</strong>
@@ -207,25 +248,53 @@ footer.meta-line {
 </div>
 
 <h2>Source Breakdown</h2>
-<p class="section-note">Where calls came from: CallRail raw and qualified counts for this period. “What we heard” is from transcript review of the subset only—not CallRail.</p>
+<p class="section-note">Where calls came from. With Lead Docket enrichment, tables add leads, signed cases, and conversion (signed / calls) by CallRail source.</p>
+<table class="data">
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th class="num" id="th-lead-src-feb">February Calls</th>
+      <th class="num">February Lead Signal Rate</th>
+      <th class="num" id="th-lead-src-mar">March Calls</th>
+      <th class="num">March Potential Lead Signals</th>
+      <th class="num">March Lead Signal Rate</th>
+      <th class="num">Change in Lead Signal Rate</th>
+      <th class="num">Change in Call Volume</th>
+    </tr>
+  </thead>
+  <tbody id="tbody-source-quality"></tbody>
+</table>
+
 <table class="data">
   <thead>
     <tr>
       <th>Source</th>
       <th class="num" id="th-src-prior-raw">Prior raw</th>
-      <th class="num" id="th-src-prior-qual">Prior qualified</th>
+      <th class="num" id="th-src-prior-qual">Prior potential lead signals</th>
       <th class="num" id="th-src-cur-raw">Current raw</th>
-      <th class="num" id="th-src-cur-qual">Current qualified</th>
-      <th class="num">Qualified share (this period)</th>
+      <th class="num" id="th-src-cur-qual">Current potential lead signals</th>
+      <th class="num">Lead Signal Rate</th>
       <th class="num" id="th-src-pct">% vs prior raw</th>
       <th>What we heard in calls</th>
     </tr>
   </thead>
   <tbody id="tbody-source"></tbody>
 </table>
+<div class="insight-aside">
+  <strong>Source takeaway</strong>
+  <ul id="insight-source-takeaway"></ul>
+</div>
+
+<h2>Call Timing Analysis</h2>
+<p class="section-note">When calls happen and when quality is highest.</p>
+<div class="chart-box">
+  <canvas id="chart-hourly" width="900" height="220"></canvas>
+</div>
+<p class="section-note" id="chart-hourly-legend"><strong>Legend:</strong> bars = call volume, line = lead signal rate.</p>
+<p class="section-note" id="chart-hourly-summary">Not available</p>
 
 <h2>Call quality breakdown</h2>
-<p class="section-note">Transcript-informed categories for the transcript subset only—not CallRail dispositions. Prior column fills in only when a comparable prior subset exists.</p>
+<p class="section-note">These categories are based primarily on transcript review and are directional, not final case classifications. They may undercount items better captured by manual tags.</p>
 <table class="data">
   <thead>
     <tr>
@@ -244,43 +313,24 @@ footer.meta-line {
 </div>
 
 <h2>Potential missed opportunities</h2>
-<p class="insight-foot" id="insight-missed">—</p>
+<p class="insight-foot" id="insight-missed">Not available</p>
 
 <h2>Volume funnel (current month)</h2>
-<p class="section-note">Transcript subset only: share of scored calls by coarse transcript labels (not CallRail qualified counts).</p>
+<p class="section-note">Based on analyzed calls with transcripts. This view shows where call volume is concentrated.</p>
 <div class="chart-row" style="grid-template-columns: 1fr;">
-  <div class="chart-box"><canvas id="chart-funnel" width="600" height="200"></canvas><p class="chart-cap">Transcript subset — volume shape</p></div>
+  <div class="chart-box"><canvas id="chart-funnel" width="600" height="200"></canvas><p class="chart-cap">Transcript subset volume shape</p></div>
 </div>
 
 <h2>Duration distribution (current month)</h2>
-<p class="section-note">Transcript subset only: recorded call length in seconds where available.</p>
+<p class="section-note">Based on analyzed calls with transcripts: call length grouped into practical time buckets.</p>
 <div class="chart-row" style="grid-template-columns: 1fr;">
   <div class="chart-box"><canvas id="chart-duration-hist" width="600" height="200"></canvas><p class="chart-cap">Duration (seconds)</p></div>
 </div>
 
-<h2>Performance trends</h2>
-<p class="section-note">Month-by-month lines need reliable call timestamps on transcripts. Otherwise charts stay hidden.</p>
-<div class="chart-row" id="trends-placeholder-wrap" style="display: none;">
-  <div class="chart-box" style="grid-column: 1 / -1;">
-    <p class="section-note" style="margin: 0.5rem 0;">Monthly trend charts are hidden until timestamp-complete transcript data is available. CallRail totals in this report stay the source of truth for volume.</p>
-  </div>
+<div class="figure">
+  <p><strong>Heatmap</strong></p>
+  <img src="charts/mom_heatmap_march.png" alt="Heatmap" onerror="this.closest('.figure').style.display='none'">
 </div>
-<div class="chart-row" id="trends-charts-wrap">
-  <div class="chart-box"><canvas id="chart-opp-rate" width="400" height="200"></canvas><p class="chart-cap">Qualified share by month (needs dates)</p></div>
-  <div class="chart-box"><canvas id="chart-duration-trend" width="400" height="200"></canvas><p class="chart-cap">Median duration by month (needs dates)</p></div>
-  <div class="chart-box"><canvas id="chart-source-mix" width="400" height="200"></canvas><p class="chart-cap">Volume by source bucket (needs dates)</p></div>
-</div>
-
-<h2>Reference charts</h2>
-<p class="section-note">Export-based reference visuals from earlier pipeline runs. They may not match the exact date range above; use for shape and history, not as the live CallRail total.</p>
-<div class="figure"><p><strong>Source mix</strong></p><img src="charts/mom_source_comparison.png" alt="Source comparison" onerror="this.closest('.figure').style.display='none'"/></div>
-<div class="figure"><p><strong>Strategic buckets — month vs month</strong></p><img src="charts/mom_bucket_comparison.png" alt="Buckets" onerror="this.closest('.figure').style.display='none'"/></div>
-<div class="figure"><p><strong>Call intent mix (recent month in export)</strong></p><img src="charts/mom_intent_pie_march.png" alt="Intent pie" onerror="this.closest('.figure').style.display='none'"/></div>
-<div class="figure"><p><strong>Call length by bucket</strong></p><img src="charts/mom_duration_buckets.png" alt="Duration buckets" onerror="this.closest('.figure').style.display='none'"/></div>
-<div class="figure"><p><strong>When calls arrive — heatmap</strong></p><img src="charts/mom_heatmap_march.png" alt="Heatmap" onerror="this.closest('.figure').style.display='none'"/></div>
-<div class="figure"><p><strong>Source × bucket (stacked)</strong></p><img src="charts/mom_source_bucket_stacked.png" alt="Stacked source" onerror="this.closest('.figure').style.display='none'"/></div>
-<div class="figure"><p><strong>Funnel (export)</strong></p><img src="charts/funnel.png" alt="Funnel" onerror="this.closest('.figure').style.display='none'"/></div>
-<div class="figure"><p><strong>Duration histogram (export)</strong></p><img src="charts/duration_histogram.png" alt="Histogram" onerror="this.closest('.figure').style.display='none'"/></div>
 
 <footer class="meta-line">CallRail totals: truth file. Transcript sections: pattern support only. Validate before operational use.</footer>
 </div>

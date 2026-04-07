@@ -69,6 +69,16 @@ function parseMonthKeyFromRecord(record) {
   return `${y}-${m}`;
 }
 
+/** True if call_start_time, start_time, or created_at parses as a date */
+function hasValidTimestampRecord(record) {
+  const check = (v) => {
+    if (v == null) return false;
+    const s = String(v).trim();
+    return s.length > 0 && !Number.isNaN(Date.parse(s));
+  };
+  return check(record.call_start_time) || check(record.start_time) || check(record.created_at);
+}
+
 function normalizeSourceBucket(src) {
   const s = safeStr(src).toLowerCase();
   if (/google ads|ppc|paid search|adwords/.test(s)) return "google_ads";
@@ -213,21 +223,62 @@ function excerpt(text, max) {
 
 const WASTE_TYPES = ["vendor_sales", "wrong_firm", "property_damage_only", "admin", "existing_client"];
 
+function attachRecordMeta(out, record) {
+  if (record.call_start_time != null && String(record.call_start_time).trim())
+    out.call_start_time = record.call_start_time;
+  if (record.start_time != null && String(record.start_time).trim()) out.start_time = record.start_time;
+  if (record.created_at != null && String(record.created_at).trim()) out.created_at = record.created_at;
+  const tracking = safeStr(record.tracking_phone_number);
+  if (tracking) out.tracking_phone_number = tracking;
+  const customer = safeStr(record.customer_phone_number);
+  if (customer) out.customer_phone_number = customer;
+  const caller = safeStr(record.caller_phone_number);
+  if (caller) out.caller_phone_number = caller;
+  const formattedCustomer = safeStr(record.formatted_customer_phone_number);
+  if (formattedCustomer) out.formatted_customer_phone_number = formattedCustomer;
+  if (safeStr(record.recording_url)) out.recording_url = record.recording_url;
+  const dir = safeStr(record.direction);
+  if (dir) out.direction = dir;
+  const city = safeStr(record.city);
+  if (city) out.city = city;
+  const state = safeStr(record.state);
+  if (state) out.state = state;
+}
+
 function scoreOneRecord(record, index) {
   const call_id = safeStr(record.call_id) || safeStr(record.id) || "unknown_" + index;
   const transcription = safeStr(record.transcription || record.transcript);
-  if (!transcription) return null;
-
   const sourceRaw = safeStr(record.source) || "unknown";
   const duration = durationSec(record);
-  const tracking = safeStr(record.tracking_phone_number);
+  const { hour_of_day, weekday } = parseTiming(record);
+  const bucket = normalizeSourceBucket(sourceRaw);
+
+  if (!transcription) {
+    const out = {
+      call_id,
+      opportunity_score: 0,
+      attorney_switch_probability: 0.06,
+      call_type: "no_transcript",
+      hidden_opportunity_flag: false,
+      duration: duration != null ? duration : null,
+      source_bucket: bucket,
+      geo_hint: null,
+      transcript_excerpt: "",
+      source: sourceRaw,
+      transcription: "",
+      qualified_score: 0,
+      notes: "",
+      hour_of_day,
+      weekday,
+    };
+    attachRecordMeta(out, record);
+    return out;
+  }
 
   const opp = opportunityScore(transcription);
   const switchP = attorneySwitchProbability(transcription);
   const type = classifyCallType(transcription, opp);
-  const { hour_of_day, weekday } = parseTiming(record);
   const geo = extractGeoHint(transcription);
-  const bucket = normalizeSourceBucket(sourceRaw);
 
   const durForShort = duration != null ? duration : null;
   const shortCall = durForShort != null && durForShort < 90;
@@ -252,13 +303,7 @@ function scoreOneRecord(record, index) {
     weekday,
   };
 
-  if (record.call_start_time != null && String(record.call_start_time).trim())
-    out.call_start_time = record.call_start_time;
-  if (record.start_time != null && String(record.start_time).trim()) out.start_time = record.start_time;
-  if (record.created_at != null && String(record.created_at).trim()) out.created_at = record.created_at;
-
-  if (tracking) out.tracking_phone_number = tracking;
-  if (safeStr(record.recording_url)) out.recording_url = record.recording_url;
+  attachRecordMeta(out, record);
 
   return out;
 }
@@ -276,6 +321,7 @@ module.exports = {
   scoreOneRecord,
   parseMonthKeyFromRecord,
   getPreferredTimestamp,
+  hasValidTimestampRecord,
   syntheticMonthKey,
   normalizeSourceBucket,
   WASTE_TYPES,
